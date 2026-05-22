@@ -1599,60 +1599,101 @@ export default function App() {
                 {activeRuleId === 'rules-saves' && (
                   <div>
                     <h3>1. Save (구제 판정)</h3>
-                    <p>Save (구제 판정)란 위험천만한 행동이나 재앙적 상황에서 대처해 살아남기 위한 주사위 굴림입니다.</p>
-                    <p><strong>판정 방법</strong>: 20면체 주사위(d20)를 굴립니다. 나온 주사위 값이 캐릭터의 <strong>해당 능력치 수치 이하</strong>라면 성공적으로 회피하거나 돌파한 것입니다. 1은 무조건 대성공을 뜻하고, 20은 무조건 실패(재앙)를 의미합니다.</p>
+                    <p>Save (구제 판정)란 죽음의 위협, 함정, 괴물의 괴이한 특수 공격이나 정신을 어지럽히는 위험한 비술에서 대처하여 생존하기 위해 굴리는 저항 주사위 굴림입니다.</p>
+                    <p><strong>판정 방법</strong>: 20면체 주사위(d20)를 굴립니다. 나온 주사위 값이 캐릭터의 <strong>해당 능력치 수치 이하</strong>라면 성공적으로 위기를 극복하거나 돌파한 것입니다.</p>
                     <ul>
-                      <li><strong>Strength (근력)</strong>: 격투, 육체적 방어력, 통풍, 생존, 건강에 관련된 STR Save (근력 구제 판정).</li>
-                      <li><strong>Dexterity (민첩)</strong>: 우아한 거동, 운동능력, 교묘한 함정 우회, 속도 반사행동에 관련된 DEX Save (민첩 구제 판정).</li>
-                      <li><strong>Willpower (의지)</strong>: 정신력, 규율성, 고결함, 비술적 신비 극복에 관련된 WIL Save (의지 구제 판정).</li>
+                      <li><strong>d20 굴림 결과 1</strong>: <strong>Critical Success (대성공)</strong>으로 판정되며, 극도로 유리한 기회나 이점을 즉시 확보합니다.</li>
+                      <li><strong>d20 굴림 결과 20</strong>: <strong>Critical Failure (대실패/재앙)</strong>로 판정되며, 판정은 무조건 실패하고 전례 없는 위기나 치명적인 Complication (추가 난관)을 직면합니다.</li>
                     </ul>
+                    <div className="rules-sub-section">
+                      <h4>능력치별 구제 판정 범주:</h4>
+                      <ul>
+                        <li><strong>Strength (근력 - STR Save)</strong>: 물리적인 위기 극복, 중독(Poison) 및 질병 저항, 육체적 방어, 무거운 충격 견디기, 기절 극복 등에 사용됩니다.</li>
+                        <li><strong>Dexterity (민첩 - DEX Save)</strong>: 함정이나 떨어지는 바위 피하기, 반사 작용, 은밀한 침투, 추락 방지, 그리고 적의 기습(Surprise)에서 재빠르게 대처하기 위해 사용됩니다.</li>
+                        <li><strong>Willpower (의지 - WIL Save)</strong>: 공포 극복, 신비로운 마법 효과나 초자연적 의식 극복, 타락한 비술 저항, 그리고 대원이나 몬스터 무리의 <strong>Morale (사기 판정)</strong>에 사용됩니다.</li>
+                      </ul>
+                    </div>
                   </div>
                 )}
 
                 {activeRuleId === 'rules-turns' && (
                   <div>
                     <h3>2. Turns & Actions (순서와 행동)</h3>
-                    <p>탐험 진행 중 조우나 충돌이 생겼을 때의 진행 규칙입니다.</p>
-                    <p><strong>우선 순서인 Turns (차례)</strong>: 플레이어가 몬스터나 적군보다 무조건 우선 행동을 취합니다. 단, 기습을 당했거나 습격 위험이 있으면 대원 각자가 <strong>DEX Save (민첩 구제 판정)</strong>를 진행하여 실패하면 첫 번째 턴에는 일절 행동(Actions)할 수 없습니다.</p>
-                    <p><strong>대원의 Actions (행동)</strong>: 자기 턴에 캐릭터는 1번 이동할 수 있고 1번의 핵심 행동(무기 공격, Arcanum(아르카눔) 시전 등)을 개진할 수 있습니다. 상대를 넘어뜨리거나 밀어치는 기교적인 시도의 경우 굴릴 필요 없이 심판(Referee/오라클)의 호출 하에 대상 몬스터에게 <strong>STR Save (근력 구제 판정)</strong> 따위를 요구하여 자빠뜨립니다.</p>
+                    <p>탐험 진행 중 조우나 충돌이 생겼을 때의 라운드 진행 규칙입니다.</p>
+                    <p><strong>Turns (차례) 우선순위</strong>: 플레이어 대원들은 적들보다 <strong>항상 무조건 먼저 행동(Player Turn First)</strong>합니다! 복잡한 우선권(Initiative) 굴림은 필요하지 않습니다.</p>
+                    <ul>
+                      <li><strong>Surprise (기습)</strong>: 만약 몬스터가 교묘하게 매복했거나 플레이어 그룹이 예상치 못한 기습을 당했을 경우, 플레이어 전원은 즉시 <strong>DEX Save (민첩 구제 판정)</strong>를 굴려야 합니다. 이 판정에 실패한 대원은 첫 번째 라운드(Turn) 동안 일절 행동(Actions)이나 이동을 취할 수 없습니다.</li>
+                    </ul>
+                    <p><strong>대원의 Actions (행동)</strong>: 자기 차례에 각 대원은 합리적인 거리를 1회 <strong>이동(Move)</strong>할 수 있으며, 1회의 <strong>주요 행동(Action)</strong>을 개진할 수 있습니다. 행동에는 무기 공격, Arcanum (아르카눔) 유물 활성화, 동료 구급 치료, 주변 탐색 등이 포함됩니다.</p>
+                    <p><strong>기교적 행동 (Trips, Shoves & Grapples)</strong>: 적을 자빠뜨리거나, 뒤로 밀치거나, 무기를 쳐내는 등의 창의적이고 전술적인 조작은 공격 명중을 굴릴 필요 없이 심판(Referee/오라클)의 중재 하에 대상 적에게 적합한 구제 판정(예: 밀치기의 경우 <strong>STR Save</strong>)을 요구하여 대상이 실패하면 즉시 성공합니다.</p>
+                    <p><strong>Retainers & Companions (동행인과 고용인)</strong>: 플레이어가 고용한 추종자, Mutt (똥개)와 같은 길들인 동물, 용병들은 플레이어의 차례에 동시에 행동을 수행합니다.</p>
                   </div>
                 )}
 
                 {activeRuleId === 'rules-combat' && (
                   <div>
                     <h3>3. Combat & Damage (전투와 피해)</h3>
-                    <p>Into the Odd에서는 공격의 명중 여부를 굴리지 않습니다. <strong>공격은 항상 자동으로 명중합니다!</strong></p>
-                    <p><strong>전투 방식</strong>: 공격자는 자신의 무기가 가진 피해 주사위(d6, d8 등)를 굴린 뒤, 상대의 <strong>Armour (장갑 수치)</strong>를 뺍니다. 남은 숫자가 실제로 상대에게 가해진 <strong>Damage (피해량)</strong>입니다. 원거리 무기는 교전 백병전 중에는 발포할 수 없습니다.</p>
-                    <p><strong>변칙 상태</strong>:</p>
+                    <p>Into the Odd에서는 공격의 성공 여부를 결정하는 명중 판정이 존재하지 않습니다. <strong>모든 공격은 항상 자동으로 명중합니다!</strong></p>
+                    <p><strong>전투 연산</strong>: 공격자는 자신의 무기가 가진 피해 주사위(d6, d8 등)를 굴린 뒤, 피격 대상의 <strong>Armour (장갑 수치)</strong>를 뺍니다. 남은 피해량만큼 피격자의 <strong>Hit Protection (HP)</strong>를 차감합니다.</p>
                     <ul>
-                      <li><strong>Impaired (약화됨)</strong>: 불리한 엄폐물 뒤의 적을 쏘거나 속박당했을 때 발동합니다. 무기에 관계없이 <strong>d4 Damage (피해)</strong>로 강제 감소합니다.</li>
-                      <li><strong>Enhanced (강화됨)</strong>: 상대가 무방비하거나 무력화됐을 때의 기교적 타격입니다. 무기에 관계없이 <strong>d12 Damage (피해)</strong>를 굴립니다.</li>
-                      <li><strong>Blast (범위공격)</strong>: 수류탄이나 확산 화염 같은 넓은 지역 타격입니다. 영역 안의 생명체 전원에게 각각 주사위를 개별 적용해 피해를 줍니다.</li>
+                      <li><strong>Armour Limit (장갑의 한계)</strong>: 캐릭터가 장비나 비술을 통해 확보할 수 있는 최대 장갑 수치는 <strong>Armour 3</strong>으로 고정됩니다.</li>
+                      <li><strong>Unarmed Combat (맨손 전투)</strong>: 무기 없이 주먹이나 발길질로 공격하는 경우, 공격은 항상 <strong>Impaired (약화됨)</strong> 상태로 처리되어 무조건 <strong>d4 Damage (피해)</strong>만 가합니다.</li>
+                      <li><strong>Dual Wielding (쌍수 무기)</strong>: 만약 캐릭터가 양손에 각각 하나씩 무기를 장착하고 동시 공격하는 경우, <strong>두 무기의 피해 주사위를 동시에 굴린 후 더 높은 결과값 하나만 선택</strong>해 피해를 줍니다. (피해를 중첩해서 더하지 않습니다.)</li>
                     </ul>
-                    <p><strong>Critical Damage (치명적인 상처)</strong>: Damage (피해)가 들어와 캐릭터의 HP가 0으로 하락하는 순간, 초과되는 Damage (피해)는 캐릭터의 <strong>실제 STR (근력) 능력치</strong>에서 직접 삭감됩니다. 이 순간 대상자는 무조건 <strong>STR Save (근력 구제 판정)</strong>를 진행하여 실패하면 <strong>Critical Damage (치명적인 상처)</strong> 상태에 빠져 누군가 응급처치인 <strong>Short Rest (단기 휴식)</strong>를 해줄 때까지 어떠한 행동도 취할 수 없으며, 1시간 동안 방치되면 죽습니다.</p>
+                    <div className="rules-sub-section">
+                      <h4>특수 전투 상태:</h4>
+                      <ul>
+                        <li><strong>Impaired (약화됨)</strong>: 어둠 속에서 난사하거나 엄폐물 뒤의 적을 공격할 때, 혹은 불리한 위치에서 타격할 때 발동합니다. 무기에 관계없이 무조건 <strong>d4 Damage (피해)</strong>로 강제 감소합니다.</li>
+                        <li><strong>Enhanced (강화됨)</strong>: 적이 무방비하게 넘어졌거나 무력화된 최적의 상황에서의 타격입니다. 무기에 관계없이 무조건 <strong>d12 Damage (피해)</strong>를 굴립니다.</li>
+                        <li><strong>Blast (범위공격)</strong>: 수류탄, 화염 방사, 산성 가스 등 광역 타격 무기입니다. 효과 영역 안의 모든 생명체에게 각각 피해 주사위를 굴려 장갑을 적용해 피해를 줍니다. 만약 여러 범위공격이 한 영역에 동시에 중첩되면, 가장 높은 피해 결과물 하나만 보존됩니다.</li>
+                      </ul>
+                    </div>
+                    <p><strong>Critical Damage (치명적인 상처)</strong>: 피해가 들어와 캐릭터의 HP가 0으로 하락하면, 초과된 나머지 피해량은 캐릭터의 <strong>STR (근력) 능력치 수치</strong>에서 즉시 직접 차감됩니다. 이 순간 대상자는 무조건 <strong>STR Save (근력 구제 판정)</strong>를 진행하여 실패하면 <strong>Critical Damage (치명적인 상처)</strong> 상태에 빠집니다. 치료 처치인 <strong>Short Rest (단기 휴식)</strong>를 받기 전까지는 일절 활동이 불가능하며, 1시간 동안 방치되면 죽습니다.</p>
+                    <p><strong>Morale (사기 판정)</strong>: 적 무리의 우두머리가 쓰러지거나 무리 인원의 절반이 처단당했을 때, 남은 적들은 전의를 잃고 도망치거나 항복할 위험이 생깁니다. 적들의 리더는 자신의 <strong>WIL Save (의지 구제 판정)</strong>를 굴려야 하며, 이에 실패할 경우 적 그룹 전체가 사기를 잃고 도망가거나 무기를 버리고 즉각 투항합니다.</p>
                   </div>
                 )}
 
                 {activeRuleId === 'rules-resting' && (
                   <div>
                     <h3>4. Rest & Ability Loss (휴식과 능력치 소실)</h3>
-                    <p>심연을 극복해 나가며 바닥난 체력과 소실된 영혼을 되찾는 법칙입니다.</p>
+                    <p>심연의 전투 속에서 소모된 체력을 회복하거나 소실된 능력치를 원상 복구하는 법칙입니다.</p>
                     <ul>
-                      <li><strong>Ability Score Loss (능력치 소실)</strong>: 만일 Damage (피해) 삭감으로 인해 <strong>STR이 0이 되면 즉사</strong>합니다. DEX(민첩)나 WIL(의지)이 0이 될 경우 paralysed (기절)하거나 broken (정신 붕괴) 상태에 이르며 일주일 이상 요양인 <strong>Full Rest (장기 요양)</strong>를 취하기 전엔 깨어나지 못합니다.</li>
-                      <li><strong>Short Rest (단기 휴식)</strong>: 안전한 곳에서 수 분간 가쁜 숨을 몰아쉬고 물을 한 모금 마시면 <strong>잃어버린 HP가 즉시 전부 회복</strong>됩니다. 단, 휴식을 취하는 시간 동안 주사위가 굴러가 방랑 조우가 올 수 있습니다.</li>
-                      <li><strong>Full Rest (장기 요양)</strong>: Bastion (바스티온)의 포근한 요양원이나 길드 가옥에서 일주일 동안 아무 작업 없이 먹고 자며 회복하는 것입니다. <strong>소실된 모든 능력치(STR, DEX, WIL) 수치가 정상 최대치로 환원</strong>됩니다.</li>
+                      <li><strong>Ability Score Loss (능력치 소실 결과)</strong>:
+                        <ul>
+                          <li><strong>STR (근력) 수치가 0이 되는 경우</strong>: 캐릭터는 영양실조, 신체 파괴 등으로 즉시 <strong>사망(Instant Death)</strong>합니다.</li>
+                          <li><strong>DEX (민첩) 수치가 0이 되는 경우</strong>: 전신이 마비되거나 굳어지는 <strong>paralysed (마비 기절)</strong> 상태가 됩니다.</li>
+                          <li><strong>WIL (의지) 수치가 0이 되는 경우</strong>: 정신력이 붕괴하거나 미쳐버리는 <strong>broken (정신 붕괴)</strong> 상태가 됩니다.</li>
+                        </ul>
+                        DEX나 WIL이 0이 된 경우, 안전지대 요양인 <strong>Full Rest (장기 요양)</strong>를 거치기 전까진 결코 스스로 정신을 차리지 못합니다.
+                      </li>
+                      <li><strong>Short Rest (단기 휴식)</strong>: 위험이 없는 구역에서 몇 분 동안 가쁜 숨을 가다듬고 물 한 모금을 마시는 짧은 휴식입니다. **잃어버린 Hit Protection (HP)이 즉시 최대치로 완전히 재충전**됩니다. 또한, Critical Damage (치명적인 상처)를 입은 동료에게 응급처치(First Aid)를 베풀어 이 상태를 즉각 정상 환원시켜 줍니다.</li>
+                      <li><strong>Full Rest (장기 요양)</strong>: Bastion (바스티온)의 안락한 요양원이나 안전한 길드 본부 가옥에서 아무 일도 하지 않고 1주일(Seven Days) 동안 푹 쉬며 요양하는 것만 뜻합니다. **소실된 모든 능력치(STR, DEX, WIL)의 손실분이 본래의 최대치 수치로 완벽하게 복구**됩니다.</li>
                     </ul>
+                    <div className="rules-sub-section" style={{ borderColor: 'var(--color-red)' }}>
+                      <h4 style={{ color: 'var(--color-red)' }}>⚠️ Deprived (결핍 상태)</h4>
+                      <p>식량, 식수, 온기, 수면 등 생존에 필수적인 요소를 하루(24시간) 이상 제공받지 못하면, 캐릭터는 **Deprived (결핍 상태)**에 돌입합니다.</p>
+                      <ul>
+                        <li><strong>휴식 불가</strong>: Deprived (결핍 상태)의 캐릭터는 어떠한 <strong>Short Rest (단기 휴식)</strong>나 <strong>Full Rest (장기 요양)</strong>를 취하더라도 <strong>단 1의 HP나 능력치도 회복할 수 없습니다!</strong></li>
+                        <li><strong>약화 지속</strong>: 결핍이 해결될 때까지 모든 행동과 공격 상태가 지속적으로 <strong>Impaired (약화됨)</strong> 처리됩니다. 극심한 아사 위기에 봉착하는 등 심각한 결핍이 계속되면 심판의 중재 하에 매일 또는 시간당 <strong>d6의 직접 피해</strong>를 누적해 받게 됩니다.</li>
+                      </ul>
+                    </div>
                   </div>
                 )}
 
                 {activeRuleId === 'rules-bulky' && (
                   <div>
                     <h3>5. Bulky (무거운 짐 부피 규정)</h3>
-                    <p>Into the Odd는 복잡한 무게 계산이 없는 단순하고 치명적인 부피 시스템을 씁니다.</p>
-                    <p><strong>부피 규정</strong>: 장비 목록 중 이름 뒤에 <strong>B</strong> 마크가 붙은 물건(양손 소총, 도끼, 강철 보호구 등)들은 양손으로 잡거나 거대한 배낭 부피를 점유하는 무거운 짐입니다. 한 캐릭터가 동시에 소지할 수 있는 Bulky (무거운 짐) 장비의 한계는 <strong>단 2개</strong>입니다.</p>
-                    <p style={{ color: 'var(--color-red)', fontWeight: 'bold' }}>
-                      ⚠️ 만약 캐릭터 인벤토리에 Bulky (무거운 짐) 아이템이 3개 이상 들어오는 즉시, 그 과중한 짐 무게로 인해 해당 캐릭터의 HP가 강제 및 영구적으로 0이 됩니다!
-                    </p>
+                    <p>Into the Odd는 미세한 무게(파운드/kg) 단위의 복잡한 계산을 배제하고 단순하지만 매우 치명적인 슬롯 부피 제한 규정을 채택합니다.</p>
+                    <p>장비 목록 중 이름 오른쪽에 <strong>B (Bulky)</strong> 표시가 명시된 도구(양손 무기, 대형 머스킷, 거대한 철갑옷, 커다란 자루 등)들은 양손으로 들어야 하거나 상당한 체격 슬롯을 차치하는 짐입니다.</p>
+                    <ul>
+                      <li><strong>휴대 한계</strong>: 한 명의 캐릭터가 안전하게 몸에 지닐 수 있는 Bulky (무거운 짐) 등급의 아이템은 **최대 2개**뿐입니다.</li>
+                      <li><strong>Shield (방패) 규정</strong>: 방패는 장착 시 **Armour +1**을 제공하지만, 그 부피로 인해 이름 오른쪽에 **B** 표시가 붙는 **Bulky (무거운 짐)** 장비로 취급됩니다.</li>
+                    </ul>
+                    <div className="warning-box" style={{ background: 'rgba(239, 68, 68, 0.05)', borderLeft: '4px solid var(--color-red)', padding: '12px', marginTop: '16px' }}>
+                      <p style={{ color: 'var(--color-red)', fontWeight: 'bold', margin: 0 }}>
+                        ⚠️ 중량 과다 조항: 만약 캐릭터의 인벤토리에 Bulky (무거운 짐) 태그가 지정된 아이템이 3개 이상 휴대되는 즉시, 캐릭터는 그 막중한 무게로 인해 뼈가 바스러지고 탈진하여 해당 캐릭터의 Hit Protection (HP)이 즉시 강제적·영구적으로 0이 됩니다!
+                      </p>
+                    </div>
                   </div>
                 )}
 
