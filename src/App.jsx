@@ -31,8 +31,28 @@ import {
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 
+// Safe localStorage override to prevent crashes in private browsing or security-restricted environments
+const localStorage = (() => {
+  try {
+    const testKey = "__storage_test__";
+    window.localStorage.setItem(testKey, testKey);
+    window.localStorage.removeItem(testKey);
+    return window.localStorage;
+  } catch (e) {
+    console.warn("localStorage is blocked or unavailable. Using safe in-memory fallback.");
+    const memoryStorage = {};
+    return {
+      getItem: (key) => memoryStorage[key] || null,
+      setItem: (key, value) => { memoryStorage[key] = String(value); },
+      removeItem: (key) => { delete memoryStorage[key]; },
+      clear: () => { for (const k in memoryStorage) delete memoryStorage[k]; },
+      key: (i) => Object.keys(memoryStorage)[i] || null,
+      get length() { return Object.keys(memoryStorage).length; }
+    };
+  }
+})();
 
-/* ==========================================
+/* ==========================================================
    DATA STRUCTURES (INTO THE ODD CORE)
    ========================================== */
 
@@ -479,7 +499,12 @@ export default function App() {
     
     if (savedParty) {
       try {
-        setParty(JSON.parse(savedParty));
+        const parsed = JSON.parse(savedParty);
+        if (Array.isArray(parsed)) {
+          setParty(parsed);
+        } else {
+          setParty([]);
+        }
       } catch (e) {
         console.error("Failed to parse saved party:", e);
         setParty([]);
@@ -490,10 +515,10 @@ export default function App() {
         const parsed = JSON.parse(savedJournal);
         if (Array.isArray(parsed)) {
           setJournalEntries(parsed);
-          if (parsed.length > 0) {
-            setSelectedEntryId(parsed[0].id);
-            setJournalTitle(parsed[0].title);
-            setJournalText(parsed[0].content);
+          if (parsed.length > 0 && parsed[0]) {
+            setSelectedEntryId(parsed[0].id || 1);
+            setJournalTitle(parsed[0].title || "");
+            setJournalText(parsed[0].content || "");
           }
         }
       } catch (e) {
