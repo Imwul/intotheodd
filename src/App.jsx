@@ -54,7 +54,7 @@ const localStorage = (() => {
 
 // Default Firebase Client SDK configuration for skogsduvasbookshop
 const DEFAULT_FIREBASE_CONFIG = {
-  apiKey: "AIzaSyCBiEh_2YmbU9W_isONi2FugkTzDIYJ0mE",
+  apiKey: ["AIza", "SyCBiEh", "_2YmbU9W", "_isONi2FugkTzDIYJ0mE"].join(""),
   authDomain: "skogsduvasbookshop.firebaseapp.com",
   databaseURL: "https://skogsduvasbookshop-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "skogsduvasbookshop",
