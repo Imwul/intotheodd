@@ -28,6 +28,9 @@ import {
   LogOut
 } from 'lucide-react';
 
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+
 
 /* ==========================================
    DATA STRUCTURES (INTO THE ODD CORE)
@@ -326,114 +329,104 @@ export default function App() {
   const [arcanumSearch, setArcanumSearch] = useState("");
   const [activeRuleId, setActiveRuleId] = useState("rules-saves");
 
-  // Google Cloud Sync States
-  const [googleClientId, setGoogleClientId] = useState("");
-  const [googleAccessToken, setGoogleAccessToken] = useState("");
-  const [googleUserEmail, setGoogleUserEmail] = useState("");
-  const [isCloudSyncing, setIsCloudSyncing] = useState(false);
-  const [lastCloudSync, setLastCloudSync] = useState("");
-  const [showGoogleSettings, setShowGoogleSettings] = useState(false);
+  // Firebase Firestore Sync States
+  const [firebaseConfigRaw, setFirebaseConfigRaw] = useState("");
+  const [firebaseSyncKey, setFirebaseSyncKey] = useState("");
+  const [isFirebaseSyncing, setIsFirebaseSyncing] = useState(false);
+  const [lastFirebaseSync, setLastFirebaseSync] = useState("");
+  const [showFirebaseSettings, setShowFirebaseSettings] = useState(false);
 
-  // Dynamic Google GIS client script loader
+  // Firebase Storage Hydrator
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.async = true;
-    script.defer = true;
-    document.body.appendChild(script);
-    
-    const savedClientId = localStorage.getItem('google_client_id');
-    if (savedClientId) setGoogleClientId(savedClientId);
-    
-    const savedLastSync = localStorage.getItem('google_last_sync');
-    if (savedLastSync) setLastCloudSync(savedLastSync);
-    
-    return () => {
-      const existingScript = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
-      if (existingScript) document.body.removeChild(existingScript);
-    };
+    const savedFbConfig = localStorage.getItem('firebase_config') || "";
+    setFirebaseConfigRaw(savedFbConfig);
+
+    const savedFbKey = localStorage.getItem('firebase_sync_key') || "";
+    setFirebaseSyncKey(savedFbKey);
+
+    const savedFbSyncTime = localStorage.getItem('firebase_last_sync') || "";
+    setLastFirebaseSync(savedFbSyncTime);
   }, []);
 
-  const handleSaveClientId = (id) => {
-    setGoogleClientId(id.trim());
-    localStorage.setItem('google_client_id', id.trim());
-    showToast("구글 Client ID가 설정되었습니다.", "success");
-    setShowGoogleSettings(false);
-  };
-
-  const handleGoogleSignIn = () => {
-    if (!googleClientId) {
-      showToast("구글 Client ID를 먼저 등록해주십시오.", "danger");
-      setShowGoogleSettings(true);
-      return;
-    }
-
+  // Dynamic Firebase Instance Fetcher
+  const getFirestoreDb = () => {
+    if (!firebaseConfigRaw) return null;
     try {
-      setIsCloudSyncing(true);
-      const tokenClient = window.google.accounts.oauth2.initTokenClient({
-        client_id: googleClientId,
-        scope: 'https://www.googleapis.com/auth/drive.file email profile',
-        callback: async (response) => {
-          if (response.error !== undefined) {
-            setIsCloudSyncing(false);
-            showToast("구글 인증 오류가 발생했습니다.", "danger");
-            return;
-          }
-          
-          const token = response.access_token;
-          setGoogleAccessToken(token);
-          
-          try {
-            const userinfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-              headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (userinfoRes.ok) {
-              const info = await userinfoRes.json();
-              setGoogleUserEmail(info.email);
-            }
-            
-            showToast("구글 계정 연동 성공!", "success");
-            await performCloudSync(token, 'check');
-          } catch (err) {
-            showToast("사용자 정보 조회 실패", "danger");
-          } finally {
-            setIsCloudSyncing(false);
-          }
-        },
-      });
-      tokenClient.requestAccessToken({ prompt: 'consent' });
+      const config = JSON.parse(firebaseConfigRaw);
+      const firebaseApps = getApps();
+      let app;
+      if (firebaseApps.length === 0) {
+        app = initializeApp(config);
+      } else {
+        app = firebaseApps[0] || getApp();
+      }
+      return getFirestore(app);
     } catch (err) {
-      setIsCloudSyncing(false);
-      showToast("Google OAuth 초기화 실패. 클라이언트 ID를 확인하십시오.", "danger");
+      console.error("Firebase Initialization Error:", err);
+      showToast("Firebase 설정 분석 중 오류가 발생했습니다. 올바른 JSON 형식인지 확인해 주세요.", "danger");
+      return null;
     }
   };
 
-  const handleGoogleSignOut = () => {
-    setGoogleAccessToken("");
-    setGoogleUserEmail("");
-    showToast("구글 계정 연동이 해제되었습니다.", "info");
-  };
-
-  // Main Cloud Sync Engine
-  const performCloudSync = async (token = googleAccessToken, mode = 'sync') => {
-    const activeToken = token || googleAccessToken;
-    if (!activeToken) {
-      showToast("구글 계정 연동이 필요합니다.", "danger");
-      handleGoogleSignIn();
+  const handleSaveFirebaseSettings = (configJson, syncKey) => {
+    const trimmedKey = syncKey.trim();
+    if (!trimmedKey) {
+      showToast("동기화 키(캠페인 코드)를 입력해 주세요.", "danger");
       return;
     }
 
-    setIsCloudSyncing(true);
-    try {
-      const q = encodeURIComponent("name = 'alone_in_the_odd_campaign.json' and trashed = false");
-      const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,modifiedTime)`, {
-        headers: { 'Authorization': `Bearer ${activeToken}` }
-      });
-      
-      if (!searchRes.ok) throw new Error("Search failed");
-      const searchData = await searchRes.json();
-      const driveFile = searchData.files && searchData.files.length > 0 ? searchData.files[0] : null;
+    if (configJson.trim()) {
+      try {
+        const parsedConfig = JSON.parse(configJson);
+        if (!parsedConfig.apiKey || !parsedConfig.projectId) {
+          showToast("Firebase Config가 유효하지 않습니다. apiKey와 projectId가 포함되어 있어야 합니다.", "danger");
+          return;
+        }
+      } catch (err) {
+        showToast("Firebase SDK 설정이 올바른 JSON 형식이 아닙니다.", "danger");
+        return;
+      }
+    } else {
+      showToast("Firebase SDK 설정을 입력해 주세요.", "danger");
+      return;
+    }
 
+    setFirebaseConfigRaw(configJson.trim());
+    localStorage.setItem('firebase_config', configJson.trim());
+
+    setFirebaseSyncKey(trimmedKey);
+    localStorage.setItem('firebase_sync_key', trimmedKey);
+
+    showToast("Firebase 설정이 안전하게 저장되었습니다.", "success");
+    setShowFirebaseSettings(false);
+  };
+
+  const handleClearFirebaseSettings = () => {
+    if (confirm("Firebase 연동 설정을 모두 삭제하시겠습니까? 로컬 데이터는 보존됩니다.")) {
+      setFirebaseConfigRaw("");
+      setFirebaseSyncKey("");
+      setLastFirebaseSync("");
+      localStorage.removeItem('firebase_config');
+      localStorage.removeItem('firebase_sync_key');
+      localStorage.removeItem('firebase_last_sync');
+      showToast("Firebase 연동이 해제되었습니다.", "info");
+    }
+  };
+
+  const performFirebaseSync = async (mode = 'sync') => {
+    if (!firebaseConfigRaw || !firebaseSyncKey) {
+      showToast("Firebase 설정을 먼저 완료해 주세요.", "danger");
+      setShowFirebaseSettings(true);
+      return;
+    }
+
+    const db = getFirestoreDb();
+    if (!db) return;
+
+    setIsFirebaseSyncing(true);
+    try {
+      const docRef = doc(db, "campaigns", firebaseSyncKey);
+      
       const localData = {
         party,
         journalEntries,
@@ -442,59 +435,20 @@ export default function App() {
       };
 
       if (mode === 'upload') {
-        if (driveFile) {
-          const patchRes = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFile.id}?uploadType=media`, {
-            method: 'PATCH',
-            headers: {
-              'Authorization': `Bearer ${activeToken}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(localData)
-          });
-          if (!patchRes.ok) throw new Error("Upload failed");
-        } else {
-          const createMetaRes = await fetch('https://www.googleapis.com/drive/v3/files', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${activeToken}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              name: 'alone_in_the_odd_campaign.json',
-              mimeType: 'application/json'
-            })
-          });
-          if (!createMetaRes.ok) throw new Error("Creation metadata failed");
-          const createdMeta = await createMetaRes.json();
-
-          const patchContentRes = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${createdMeta.id}?uploadType=media`, {
-            method: 'PATCH',
-            headers: {
-              'Authorization': `Bearer ${activeToken}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(localData)
-          });
-          if (!patchContentRes.ok) throw new Error("Content upload failed");
-        }
-        
+        await setDoc(docRef, localData);
         const nowStr = new Date().toLocaleString();
-        setLastCloudSync(nowStr);
-        localStorage.setItem('google_last_sync', nowStr);
-        showToast("구글 드라이브 업로드 완료!", "success");
+        setLastFirebaseSync(nowStr);
+        localStorage.setItem('firebase_last_sync', nowStr);
+        showToast("Firebase 클라우드에 성공적으로 저장했습니다!", "success");
       } 
       else if (mode === 'download') {
-        if (!driveFile) {
-          showToast("클라우드에 저장된 백업본이 없습니다. 먼저 업로드 하십시오.", "danger");
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) {
+          showToast("해당 동기화 키로 클라우드에 저장된 백업이 없습니다.", "danger");
           return;
         }
-
-        const downloadRes = await fetch(`https://www.googleapis.com/drive/v3/files/${driveFile.id}?alt=media`, {
-          headers: { 'Authorization': `Bearer ${activeToken}` }
-        });
-        if (!downloadRes.ok) throw new Error("Download failed");
-        const cloudData = await downloadRes.json();
-
+        
+        const cloudData = docSnap.data();
         if (cloudData.party) setParty(cloudData.party);
         if (cloudData.journalEntries) {
           setJournalEntries(cloudData.journalEntries);
@@ -505,40 +459,15 @@ export default function App() {
         if (cloudData.tension !== undefined) setTension(cloudData.tension);
 
         const nowStr = new Date().toLocaleString();
-        setLastCloudSync(nowStr);
-        localStorage.setItem('google_last_sync', nowStr);
-        showToast("구글 드라이브에서 복구 완료!", "success");
-      } 
-      else if (mode === 'check' || mode === 'sync') {
-        if (!driveFile) {
-          await performCloudSync(activeToken, 'upload');
-        } else {
-          const downloadRes = await fetch(`https://www.googleapis.com/drive/v3/files/${driveFile.id}?alt=media`, {
-            headers: { 'Authorization': `Bearer ${activeToken}` }
-          });
-          if (!downloadRes.ok) throw new Error("Download failed");
-          const cloudData = await downloadRes.json();
-
-          if (cloudData.party) setParty(cloudData.party);
-          if (cloudData.journalEntries) {
-            setJournalEntries(cloudData.journalEntries);
-            if (cloudData.journalEntries.length > 0) {
-              setSelectedEntryId(cloudData.journalEntries[0].id);
-            }
-          }
-          if (cloudData.tension !== undefined) setTension(cloudData.tension);
-          
-          const nowStr = new Date().toLocaleString();
-          setLastCloudSync(nowStr);
-          localStorage.setItem('google_last_sync', nowStr);
-          showToast("구글 드라이브 동기화 성공!", "success");
-        }
+        setLastFirebaseSync(nowStr);
+        localStorage.setItem('firebase_last_sync', nowStr);
+        showToast("Firebase 클라우드에서 데이터를 성공적으로 불렀왔습니다!", "success");
       }
     } catch (err) {
-      console.error(err);
-      showToast("구글 클라우드 동기화 실패", "danger");
+      console.error("Firebase Sync Error:", err);
+      showToast("Firebase 클라우드 동기화 실패. 규칙 및 구성을 다시 확인하십시오.", "danger");
     } finally {
-      setIsCloudSyncing(false);
+      setIsFirebaseSyncing(false);
     }
   };
 
@@ -946,6 +875,13 @@ export default function App() {
     fileReader.readAsText(event.target.files[0]);
   };
 
+  let firebaseProjectName = "";
+  if (firebaseConfigRaw) {
+    try {
+      const parsed = JSON.parse(firebaseConfigRaw);
+      firebaseProjectName = parsed.projectId || "";
+    } catch (e) {}
+  }
 
   return (
     <div className="app-container">
@@ -1198,151 +1134,168 @@ export default function App() {
 
               {/* Right column: Active party list summary & dice history */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                {/* Google Cloud Drive Sync Widget */}
-                <div className="card cloud-sync-card">
-                  <h3 className="card-title">
-                    <Cloud size={16} style={{ color: 'var(--color-cyan)' }} />
-                    <span>구글 클라우드 동기화 (Google Sync)</span>
-                  </h3>
-                  
-                  {(!googleClientId || showGoogleSettings) ? (
+                {/* Firebase Campaign Sync Widget */}
+                <div className="card cloud-sync-card firebase-sync-card">
+                  {(!firebaseConfigRaw || !firebaseSyncKey || showFirebaseSettings) ? (
                     <div>
-                      <div className="cloud-guide-box">
+                      <h3 className="card-title" style={{ color: 'var(--color-purple)' }}>
+                        <Cloud size={16} style={{ color: 'var(--color-purple)' }} />
+                        <span>파이어베이스 클라우드 설정</span>
+                      </h3>
+
+                      <div className="cloud-guide-box" style={{ borderLeft: '3px solid var(--color-purple)' }}>
                         <div className="cloud-guide-title">
-                          <Settings size={13} style={{ color: 'var(--color-cyan)' }} />
-                          <span>구글 클라우드 연동 가이드</span>
+                          <Settings size={13} style={{ color: 'var(--color-purple)' }} />
+                          <span style={{ color: 'var(--color-purple)', fontWeight: 'bold' }}>캠페인 클라우드 연동 가이드</span>
                         </div>
-                        <ul className="cloud-guide-list">
+                        <ul className="cloud-guide-list" style={{ marginTop: '8px' }}>
                           <li>
-                            1. <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-cyan)', textDecoration: 'underline' }}>Google Cloud Console</a>에 로그인합니다.
+                            1. <a href="https://console.firebase.google.com/u/1/project/skogsduvasbookshop/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-purple)', textDecoration: 'underline', fontWeight: 'bold' }}>Firebase Console</a>에서 <code>skogsduvasbookshop</code> 프로젝트를 엽니다.
                           </li>
-                          <li>2. 새 프로젝트 생성 후 <strong>Google Drive API</strong>를 찾아 사용(Enable) 설정합니다.</li>
-                          <li>3. <strong>OAuth 동의 화면</strong>을 구성하고 앱 범위를 추가한 뒤, <strong>테스트 사용자</strong>에 자신의 구글 이메일을 추가합니다.</li>
-                          <li>4. <strong>사용자 인증 정보 &gt; OAuth 클라이언트 ID</strong>를 웹 애플리케이션 유형으로 생성합니다.</li>
-                          <li>5. 승인된 JavaScript 원본(Origins)에 <code>http://localhost:3000</code> 및 <code>http://localhost:5173</code>을 추가합니다.</li>
-                          <li>6. 생성된 <strong>클라이언트 ID</strong>를 아래에 붙여넣습니다.</li>
+                          <li>
+                            2. <strong>Build &gt; Firestore Database</strong>를 생성하고, <strong>규칙(Rules)</strong> 탭에 아래 보안 규칙을 붙여넣고 [게시]합니다:
+                            <div className="code-block-rules">
+{`rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /campaigns/{syncKey} {
+      allow read, write: if true;
+    }
+  }
+}`}
+                            </div>
+                          </li>
+                          <li>
+                            3. <strong>프로젝트 설정 &gt; 웹 앱(Web App)</strong>을 추가하고 생성된 <strong>SDK 설정 객체(JSON)</strong> 전체를 아래에 붙여넣습니다.
+                          </li>
                         </ul>
                       </div>
-                      
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <label style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>GOOGLE CLIENT ID</label>
-                        <div style={{ display: 'flex', gap: '8px' }}>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '14px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          <label style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-white)', fontWeight: '700' }}>
+                            FIREBASE WEB APP CONFIG JSON
+                          </label>
+                          <textarea 
+                            className="textarea-config" 
+                            placeholder={`{\n  "apiKey": "AIzaSy...",\n  "authDomain": "skogsduvasbookshop.firebaseapp.com",\n  "projectId": "skogsduvasbookshop",\n  ...\n}`}
+                            defaultValue={firebaseConfigRaw}
+                            id="firebase-config-input"
+                            style={{ minHeight: '120px' }}
+                          />
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          <label style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-white)', fontWeight: '700' }}>
+                            SYNC KEY (비밀 캠페인 코드)
+                          </label>
                           <input 
                             type="text" 
                             className="text-input" 
-                            placeholder="xxxxxx.apps.googleusercontent.com"
-                            defaultValue={googleClientId}
-                            id="google-client-id-input"
+                            placeholder="예: my-secret-campaign-2026"
+                            defaultValue={firebaseSyncKey}
+                            id="firebase-key-input"
                           />
+                          <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                            기기 간에 이 코드가 완전히 일치해야 동일한 데이터를 연동할 수 있습니다.
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                           <button 
                             className="btn btn-primary" 
-                            style={{ background: 'var(--color-cyan)', borderColor: 'var(--color-cyan)', color: '#fff' }}
+                            style={{ flex: 1, background: 'var(--color-purple)', borderColor: 'var(--color-purple)', color: '#fff' }}
                             onClick={() => {
-                              const val = document.getElementById('google-client-id-input')?.value || '';
-                              handleSaveClientId(val);
+                              const configVal = document.getElementById('firebase-config-input')?.value || '';
+                              const keyVal = document.getElementById('firebase-key-input')?.value || '';
+                              handleSaveFirebaseSettings(configVal, keyVal);
                             }}
                           >
-                            저장
+                            연동 설정 저장
                           </button>
+                          {firebaseConfigRaw && firebaseSyncKey && (
+                            <button 
+                              className="btn btn-secondary" 
+                              style={{ flex: 0.5 }}
+                              onClick={() => setShowFirebaseSettings(false)}
+                            >
+                              취소
+                            </button>
+                          )}
                         </div>
-                        {googleClientId && (
-                          <button 
-                            className="btn btn-secondary" 
-                            style={{ marginTop: '4px', width: '100%' }}
-                            onClick={() => setShowGoogleSettings(false)}
-                          >
-                            취소
-                          </button>
-                        )}
                       </div>
                     </div>
                   ) : (
                     <div>
-                      {!googleAccessToken ? (
-                        <div>
-                          <p style={{ fontSize: '13px', lineHeight: '1.6', color: 'var(--text-muted)', marginBottom: '16px' }}>
-                            구글 클라우드와 연동하여 여러 컴퓨터 간에 캐릭터 시트, 일지 등의 탐험 캠페인 데이터를 안전하게 실시간 동기화하세요.
-                          </p>
+                      <h3 className="card-title">
+                        <Cloud size={16} style={{ color: 'var(--color-purple)' }} />
+                        <span>파이어베이스 클라우드 동기화</span>
+                      </h3>
+                      <div>
+                        <p style={{ fontSize: '13px', lineHeight: '1.6', color: 'var(--text-muted)', marginBottom: '16px' }}>
+                          파이어베이스 파이어스토어와 성공적으로 연동되었습니다! 언제든지 탐험 상황을 저장하거나 복구하세요.
+                        </p>
+
+                        <div className="cloud-info-row">
+                          <span className="cloud-info-label">연동 프로젝트</span>
+                          <span className="cloud-info-value" style={{ color: 'var(--color-purple)', fontWeight: 'bold' }}>
+                            {firebaseProjectName || 'skogsduvasbookshop'}
+                          </span>
+                        </div>
+                        <div className="cloud-info-row">
+                          <span className="cloud-info-label">비밀 캠페인 코드</span>
+                          <span className="cloud-info-value" style={{ fontFamily: 'var(--font-mono)', fontWeight: 'bold' }}>{firebaseSyncKey}</span>
+                        </div>
+                        <div className="cloud-info-row">
+                          <span className="cloud-info-label">연동 상태</span>
+                          <span className="cloud-status-badge firebase-connected">
+                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--color-purple)', display: 'inline-block', marginRight: '6px' }}></span>
+                            연동 완료
+                          </span>
+                        </div>
+                        <div className="cloud-info-row">
+                          <span className="cloud-info-label">최근 동기화</span>
+                          <span className="cloud-info-value">{lastFirebaseSync || '기록 없음'}</span>
+                        </div>
+
+                        <div className="cloud-btn-group" style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
                           <button 
                             className="btn btn-primary" 
-                            style={{ width: '100%', display: 'flex', gap: '8px', background: 'var(--color-cyan)', borderColor: 'var(--color-cyan)', color: '#fff' }}
-                            onClick={handleGoogleSignIn}
-                            disabled={isCloudSyncing}
+                            style={{ flex: 1, background: 'var(--color-purple)', borderColor: 'var(--color-purple)', color: '#fff', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}
+                            onClick={() => performFirebaseSync('upload')}
+                            disabled={isFirebaseSyncing}
                           >
-                            {isCloudSyncing ? (
-                              <RefreshCw size={14} className="spin-loader" />
-                            ) : (
-                              <Cloud size={14} />
-                            )}
-                            <span>구글 드라이브 연동하기</span>
+                            {isFirebaseSyncing ? <RefreshCw size={12} className="spin-loader" /> : <Upload size={12} />}
+                            <span>클라우드 저장</span>
                           </button>
-                          
-                          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
-                            <button 
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', color: 'var(--text-dark)', cursor: 'pointer', fontSize: '11px' }}
-                              onClick={() => setShowGoogleSettings(true)}
-                            >
-                              <Settings size={12} />
-                              <span>Client ID 설정 변경</span>
-                            </button>
-                          </div>
+                          <button 
+                            className="btn btn-secondary" 
+                            style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}
+                            onClick={() => performFirebaseSync('download')}
+                            disabled={isFirebaseSyncing}
+                          >
+                            {isFirebaseSyncing ? <RefreshCw size={12} className="spin-loader" /> : <Download size={12} />}
+                            <span>클라우드 복구</span>
+                          </button>
                         </div>
-                      ) : (
-                        <div>
-                          <div className="cloud-info-row">
-                            <span className="cloud-info-label">연동 계정</span>
-                            <span className="cloud-info-value" style={{ color: 'var(--color-cyan)' }}>{googleUserEmail}</span>
-                          </div>
-                          <div className="cloud-info-row">
-                            <span className="cloud-info-label">연동 상태</span>
-                            <span className="cloud-status-badge connected">
-                              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--color-green)', display: 'inline-block' }}></span>
-                              연동 완료
-                            </span>
-                          </div>
-                          <div className="cloud-info-row">
-                            <span className="cloud-info-label">최근 동기화</span>
-                            <span className="cloud-info-value">{lastCloudSync || '기록 없음'}</span>
-                          </div>
-                          
-                          <div className="cloud-btn-group">
-                            <button 
-                              className="btn btn-primary" 
-                              style={{ background: 'var(--color-cyan)', borderColor: 'var(--color-cyan)', color: '#fff' }}
-                              onClick={() => performCloudSync(null, 'upload')}
-                              disabled={isCloudSyncing}
-                            >
-                              {isCloudSyncing ? <RefreshCw size={12} className="spin-loader" /> : <Upload size={12} />}
-                              <span>클라우드 저장</span>
-                            </button>
-                            <button 
-                              className="btn btn-secondary" 
-                              onClick={() => performCloudSync(null, 'download')}
-                              disabled={isCloudSyncing}
-                            >
-                              {isCloudSyncing ? <RefreshCw size={12} className="spin-loader" /> : <Download size={12} />}
-                              <span>클라우드 복구</span>
-                            </button>
-                          </div>
-                          
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', borderTop: '1px solid rgba(15, 23, 42, 0.08)', paddingTop: '12px' }}>
-                            <button 
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', color: 'var(--text-dark)', cursor: 'pointer', fontSize: '11px' }}
-                              onClick={() => setShowGoogleSettings(true)}
-                            >
-                              <Settings size={12} />
-                              <span>인증 설정</span>
-                            </button>
-                            <button 
-                              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', color: 'var(--color-red)', cursor: 'pointer', fontSize: '11px', fontWeight: '700' }}
-                              onClick={handleGoogleSignOut}
-                            >
-                              <LogOut size={12} />
-                              <span>계정 연동 해제</span>
-                            </button>
-                          </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', borderTop: '1px solid rgba(15, 23, 42, 0.08)', paddingTop: '12px' }}>
+                          <button 
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', color: 'var(--text-dark)', cursor: 'pointer', fontSize: '11px' }}
+                            onClick={() => setShowFirebaseSettings(true)}
+                          >
+                            <Settings size={12} />
+                            <span>설정 변경</span>
+                          </button>
+                          <button 
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', color: 'var(--color-red)', cursor: 'pointer', fontSize: '11px', fontWeight: '700' }}
+                            onClick={handleClearFirebaseSettings}
+                          >
+                            <LogOut size={12} />
+                            <span>연동 해제</span>
+                          </button>
                         </div>
-                      )}
+                      </div>
                     </div>
                   )}
                 </div>
