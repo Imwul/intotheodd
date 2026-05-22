@@ -477,17 +477,35 @@ export default function App() {
     const savedJournal = localStorage.getItem('alone_journal');
     const savedTension = localStorage.getItem('alone_tension');
     
-    if (savedParty) setParty(JSON.parse(savedParty));
-    if (savedJournal) {
-      const parsed = JSON.parse(savedJournal);
-      setJournalEntries(parsed);
-      if (parsed.length > 0) {
-        setSelectedEntryId(parsed[0].id);
-        setJournalTitle(parsed[0].title);
-        setJournalText(parsed[0].content);
+    if (savedParty) {
+      try {
+        setParty(JSON.parse(savedParty));
+      } catch (e) {
+        console.error("Failed to parse saved party:", e);
+        setParty([]);
       }
     }
-    if (savedTension) setTension(parseInt(savedTension, 10));
+    if (savedJournal) {
+      try {
+        const parsed = JSON.parse(savedJournal);
+        if (Array.isArray(parsed)) {
+          setJournalEntries(parsed);
+          if (parsed.length > 0) {
+            setSelectedEntryId(parsed[0].id);
+            setJournalTitle(parsed[0].title);
+            setJournalText(parsed[0].content);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to parse saved journal:", e);
+      }
+    }
+    if (savedTension) {
+      const parsedTension = parseInt(savedTension, 10);
+      if (!isNaN(parsedTension)) {
+        setTension(parsedTension);
+      }
+    }
   }, []);
 
   // Save to local storage when state changes
