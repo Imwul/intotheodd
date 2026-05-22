@@ -1140,4 +1140,127 @@ pre, code, .stat-value {
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
+/* Dashboard Desktop Grid Layout (Missing definition fixed) */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Google Cloud Sync Widget Styling */
+.cloud-sync-card {
+  border-color: rgba(14, 165, 233, 0.25) !important;
+  box-shadow: 0 10px 30px rgba(14, 165, 233, 0.02);
+}
+
+.cloud-sync-card:hover {
+  border-color: var(--color-cyan) !important;
+  box-shadow: 0 10px 30px rgba(14, 165, 233, 0.06);
+}
+
+.cloud-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.cloud-status-badge.connected {
+  background-color: rgba(5, 150, 105, 0.08);
+  border: 1px solid rgba(5, 150, 105, 0.3);
+  color: var(--color-green);
+}
+
+.cloud-status-badge.disconnected {
+  background-color: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: var(--text-muted);
+}
+
+.cloud-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 13px;
+  border-bottom: 1px dashed rgba(15, 23, 42, 0.08);
+  padding-bottom: 8px;
+}
+
+.cloud-info-row:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.cloud-info-label {
+  color: var(--text-muted);
+  font-family: var(--font-body);
+}
+
+.cloud-info-value {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--text-white);
+}
+
+.cloud-btn-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.cloud-guide-box {
+  background-color: var(--bg-card-alt);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 6px;
+  padding: 14px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.cloud-guide-title {
+  font-weight: 700;
+  color: var(--text-white);
+  margin-bottom: 8px;
+  font-family: var(--font-heading);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cloud-guide-list {
+  padding-left: 18px;
+  margin-bottom: 0;
+}
+
+.cloud-guide-list li {
+  margin-bottom: 6px;
+}
+
+.cloud-guide-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* Fast Spin Animation for Loading Icons */
+@keyframes fastSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.spin-loader {
+  animation: fastSpin 1s linear infinite;
+  display: inline-block;
+}
+
 
