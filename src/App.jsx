@@ -1190,7 +1190,7 @@ export default function App() {
                       </h4>
                       {firebaseSyncKey && (
                         <button 
-                          style={{ background: 'none', border: 'none', color: 'var(--color-red)', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 'bold' }}
+                          style={{ background: 'none', border: 'none', color: 'var(--color-red)', cursor: 'pointer', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 'bold' }}
                           onClick={() => {
                             handleClearFirebaseSettings();
                             setShowFirebaseSettings(false);
@@ -1202,18 +1202,18 @@ export default function App() {
                       )}
                     </div>
 
-                    <div className="cloud-guide-box" style={{ borderLeft: '3px solid var(--color-purple)', padding: '8px', background: 'rgba(124, 58, 237, 0.05)', borderRadius: '4px', marginBottom: '12px' }}>
-                      <p style={{ fontSize: '11px', margin: 0, lineHeight: '1.5', color: '#fff' }}>
+                    <div className="cloud-guide-box" style={{ borderLeft: '3px solid var(--color-purple)', padding: '10px 12px', background: 'rgba(124, 58, 237, 0.05)', borderRadius: '4px', marginBottom: '12px' }}>
+                      <p style={{ fontSize: '13px', margin: 0, lineHeight: '1.5', color: '#fff' }}>
                         🚀 <strong>skogsduvasbookshop</strong> 프로젝트 기본 내장
                       </p>
-                      <p style={{ fontSize: '10px', margin: '4px 0 0 0', lineHeight: '1.4', color: 'var(--text-dark)' }}>
+                      <p style={{ fontSize: '12px', margin: '4px 0 0 0', lineHeight: '1.4', color: '#cbd5e1' }}>
                         기기간 동일한 비밀 캠페인 코드를 입력하여 탐험 기록을 동기화하세요.
                       </p>
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        <label style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: '#fff', fontWeight: '700' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', color: '#fff', fontWeight: '700' }}>
                           SYNC KEY (비밀 캠페인 코드)
                         </label>
                         <input 
@@ -1222,17 +1222,17 @@ export default function App() {
                           placeholder="예: 251500"
                           defaultValue={firebaseSyncKey}
                           id="firebase-key-input"
-                          style={{ padding: '6px 10px', fontSize: '12px' }}
+                          style={{ padding: '8px 12px', fontSize: '14px' }}
                         />
                       </div>
 
                       <details style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '8px' }}>
-                        <summary style={{ fontSize: '11px', color: 'var(--color-purple)', cursor: 'pointer', userSelect: 'none', fontWeight: 'bold' }}>
+                        <summary style={{ fontSize: '13px', color: 'var(--color-purple)', cursor: 'pointer', userSelect: 'none', fontWeight: 'bold' }}>
                           고급 설정 (커스텀 Firebase 및 보안 규칙)
                         </summary>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px', padding: '6px', background: 'rgba(0, 0, 0, 0.2)', borderRadius: '4px' }}>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <label style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', color: '#fff', fontWeight: '700' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '6px', padding: '8px', background: 'rgba(0, 0, 0, 0.2)', borderRadius: '4px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <label style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: '#fff', fontWeight: '700' }}>
                               FIREBASE WEB APP CONFIG JSON (선택 사항)
                             </label>
                             <textarea 
@@ -1240,15 +1240,15 @@ export default function App() {
                               placeholder={`{\n  "apiKey": "AIzaSy...",\n  "projectId": "your-app",\n  ...\n}`}
                               defaultValue={firebaseConfigRaw}
                               id="firebase-config-input"
-                              style={{ minHeight: '70px', fontSize: '10px', fontFamily: 'var(--font-mono)', padding: '6px' }}
+                              style={{ minHeight: '80px', fontSize: '12px', fontFamily: 'var(--font-mono)', padding: '8px' }}
                             />
                           </div>
 
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <label style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', color: '#fff', fontWeight: '700' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <label style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: '#fff', fontWeight: '700' }}>
                               권장 FIRESTORE 보안 규칙
                             </label>
-                            <div className="code-block-rules" style={{ margin: 0, padding: '6px', fontSize: '9px', maxHeight: '100px', overflowY: 'auto' }}>
+                            <div className="code-block-rules" style={{ margin: 0, padding: '8px', fontSize: '11px', maxHeight: '100px', overflowY: 'auto' }}>
 {`rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -1265,10 +1265,10 @@ service cloud.firestore {
                         </div>
                       </details>
 
-                      <div style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
+                      <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
                         <button 
                           className="btn btn-primary" 
-                          style={{ flex: 1, background: 'var(--color-purple)', borderColor: 'var(--color-purple)', color: '#fff', fontSize: '12px', padding: '6px 12px' }}
+                          style={{ flex: 1, background: 'var(--color-purple)', borderColor: 'var(--color-purple)', color: '#fff', fontSize: '13px', padding: '8px 12px' }}
                           onClick={() => {
                             const configVal = document.getElementById('firebase-config-input')?.value || '';
                             const keyVal = document.getElementById('firebase-key-input')?.value || '';
@@ -1279,7 +1279,7 @@ service cloud.firestore {
                         </button>
                         <button 
                           className="btn btn-secondary" 
-                          style={{ flex: 0.4, fontSize: '12px', padding: '6px 12px' }}
+                          style={{ flex: 0.4, fontSize: '13px', padding: '8px 12px' }}
                           onClick={() => setShowFirebaseSettings(false)}
                         >
                           닫기
@@ -1330,7 +1330,7 @@ service cloud.firestore {
                       <div className="rolled-value">{diceRollResult}</div>
                       <button 
                         className="btn btn-secondary" 
-                        style={{ marginTop: '10px', padding: '4px 8px', fontSize: '10px' }}
+                        style={{ marginTop: '10px', padding: '6px 10px', fontSize: '12px' }}
                         onClick={() => injectTextToJournal(`주사위 판정 결과 [${diceRollLabel}]: ${diceRollResult}`)}
                       >
                         주사위 값을 일지에 기록하기
@@ -1378,10 +1378,10 @@ service cloud.firestore {
                       {party.map(c => (
                         <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-muted)', paddingBottom: '8px' }}>
                           <div>
-                            <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-gold)' }}>{c.name}</span>
-                            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginLeft: '8px' }}>HP {c.hpCur}/{c.hpMax}</span>
+                            <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--color-gold)' }}>{c.name}</span>
+                            <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginLeft: '8px' }}>HP {c.hpCur}/{c.hpMax}</span>
                           </div>
-                          <div style={{ display: 'flex', gap: '6px', fontFamily: 'var(--font-mono)', fontSize: '11px' }}>
+                          <div style={{ display: 'flex', gap: '6px', fontFamily: 'var(--font-mono)', fontSize: '13px' }}>
                             <span style={{ color: 'var(--color-red)' }}>S {c.strCur}</span>
                             <span style={{ color: 'var(--color-cyan)' }}>D {c.dexCur}</span>
                             <span style={{ color: 'var(--color-purple)' }}>W {c.wilCur}</span>
@@ -1406,11 +1406,11 @@ service cloud.firestore {
                     <span>주사위 기록 보관함</span>
                   </h3>
                   {diceHistory.length === 0 ? (
-                    <div style={{ padding: '10px 0', textAlign: 'center', color: 'var(--text-dark)', fontSize: '12px' }}>
+                    <div style={{ padding: '10px 0', textAlign: 'center', color: 'var(--text-dark)', fontSize: '14px' }}>
                       기록이 없습니다.
                     </div>
                   ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto', fontSize: '13px', fontFamily: 'var(--font-mono)' }}>
                       {diceHistory.map((h, i) => (
                         <div key={i} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed var(--border-muted)', paddingBottom: '4px' }}>
                           <span style={{ color: 'var(--text-muted)' }}>{h.label}</span>
@@ -1465,7 +1465,7 @@ service cloud.firestore {
                   return (
                     <div key={c.id} className="character-card">
                       {isHpReducedToZero && (
-                        <div style={{ backgroundColor: 'var(--color-red)', color: '#000', fontSize: '10px', fontWeight: '800', textAlign: 'center', padding: '4px', textTransform: 'uppercase' }}>
+                        <div style={{ backgroundColor: 'var(--color-red)', color: '#000', fontSize: '12px', fontWeight: '800', textAlign: 'center', padding: '6px', textTransform: 'uppercase' }}>
                           ⚠️ 무거운 짐 초과 상태! HP가 강제로 0이 됩니다. (Bulky 아이템 3개 이상 보유)
                         </div>
                       )}
@@ -1486,10 +1486,20 @@ service cloud.firestore {
                             <Trash2 size={14} />
                           </button>
                         </div>
-                        <input 
-                          type="text" 
+                        <textarea 
                           className="char-background"
-                          style={{ background: 'none', border: 'none', width: '100%', padding: 0 }} 
+                          style={{ 
+                            background: 'none', 
+                            border: 'none', 
+                            width: '100%', 
+                            padding: 0,
+                            resize: 'none',
+                            lineHeight: '1.4',
+                            overflow: 'hidden',
+                            height: 'auto',
+                            display: 'block'
+                          }} 
+                          rows={2}
                           value={c.background}
                           onChange={(e) => updateCharacterStat(c.id, 'background', e.target.value)}
                         />
@@ -1504,7 +1514,7 @@ service cloud.firestore {
                             <div className="stat-value">{isHpReducedToZero ? 0 : c.hpCur}</div>
                             <div className="stat-edit-row">
                               <button className="stat-mini-btn" onClick={() => updateCharacterStat(c.id, 'hpCur', Math.max(0, c.hpCur - 1))}>-</button>
-                              <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>/ {c.hpMax}</span>
+                              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>/ {c.hpMax}</span>
                               <button className="stat-mini-btn" onClick={() => updateCharacterStat(c.id, 'hpCur', Math.min(c.hpMax, c.hpCur + 1))}>+</button>
                             </div>
                           </div>
@@ -1515,7 +1525,7 @@ service cloud.firestore {
                             <div className="stat-value">{c.strCur}</div>
                             <div className="stat-edit-row" onClick={e => e.stopPropagation()}>
                               <button className="stat-mini-btn" onClick={() => updateCharacterStat(c.id, 'strCur', Math.max(0, c.strCur - 1))}>-</button>
-                              <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>/ {c.strMax}</span>
+                              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>/ {c.strMax}</span>
                               <button className="stat-mini-btn" onClick={() => updateCharacterStat(c.id, 'strCur', Math.min(c.strMax, c.strCur + 1))}>+</button>
                             </div>
                           </div>
@@ -1526,7 +1536,7 @@ service cloud.firestore {
                             <div className="stat-value">{c.dexCur}</div>
                             <div className="stat-edit-row" onClick={e => e.stopPropagation()}>
                               <button className="stat-mini-btn" onClick={() => updateCharacterStat(c.id, 'dexCur', Math.max(0, c.dexCur - 1))}>-</button>
-                              <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>/ {c.dexMax}</span>
+                              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>/ {c.dexMax}</span>
                               <button className="stat-mini-btn" onClick={() => updateCharacterStat(c.id, 'dexCur', Math.min(c.dexMax, c.dexCur + 1))}>+</button>
                             </div>
                           </div>
@@ -1537,16 +1547,16 @@ service cloud.firestore {
                             <div className="stat-value">{c.wilCur}</div>
                             <div className="stat-edit-row" onClick={e => e.stopPropagation()}>
                               <button className="stat-mini-btn" onClick={() => updateCharacterStat(c.id, 'wilCur', Math.max(0, c.wilCur - 1))}>-</button>
-                              <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>/ {c.wilMax}</span>
+                              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>/ {c.wilMax}</span>
                               <button className="stat-mini-btn" onClick={() => updateCharacterStat(c.id, 'wilCur', Math.min(c.wilMax, c.wilCur + 1))}>+</button>
                             </div>
                           </div>
                         </div>
 
                         {/* Special Trait or Notes */}
-                        <div style={{ marginBottom: '14px', padding: '8px 12px', backgroundColor: 'rgba(255, 255, 255, 0.01)', borderRadius: '4px', border: '1px solid var(--border-muted)' }}>
-                          <span style={{ fontSize: '9px', textTransform: 'uppercase', color: 'var(--color-gold)', fontFamily: 'var(--font-mono)' }}>고유 특성/결손 효과</span>
-                          <div style={{ fontSize: '12px', marginTop: '2px', color: '#e3e4e6' }}>{c.trait}</div>
+                        <div style={{ marginBottom: '14px', padding: '10px 14px', backgroundColor: 'var(--bg-card-alt)', borderRadius: '6px', border: '1px solid rgba(15, 23, 42, 0.08)' }}>
+                          <span style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', color: 'var(--color-gold)', fontFamily: 'var(--font-mono)', letterSpacing: '0.05em' }}>고유 특성/결손 효과</span>
+                          <div style={{ fontSize: '14px', marginTop: '4px', color: 'var(--text-white)', fontWeight: '500' }}>{c.trait}</div>
                         </div>
 
                         {/* Interactive Inventory */}
@@ -1572,7 +1582,7 @@ service cloud.firestore {
                                     {damageDie && (
                                       <button 
                                         className="btn btn-secondary" 
-                                        style={{ padding: '2px 4px', fontSize: '9px', display: 'inline-flex', marginLeft: '6px', fontFamily: 'var(--font-mono)' }}
+                                        style={{ padding: '4px 6px', fontSize: '11px', display: 'inline-flex', marginLeft: '6px', fontFamily: 'var(--font-mono)' }}
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           rollDice(damageDie, `${c.name}의 무기 피해 판정`);
@@ -1669,13 +1679,13 @@ service cloud.firestore {
                       <div className="tension-bar" style={{ width: `${tension * 10}%` }}></div>
                     </div>
                     <div className="tension-btns">
-                      <button className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '10px' }} onClick={() => setTension(prev => Math.max(0, prev - 1))}>
+                      <button className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px' }} onClick={() => setTension(prev => Math.max(0, prev - 1))}>
                         긴장 완화 (-1)
                       </button>
-                      <button className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '10px' }} onClick={() => setTension(prev => Math.min(10, prev + 1))}>
+                      <button className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px' }} onClick={() => setTension(prev => Math.min(10, prev + 1))}>
                         긴장 고조 (+1)
                       </button>
-                      <button className="btn btn-secondary" style={{ padding: '2px 8px', fontSize: '10px', marginLeft: 'auto' }} onClick={() => setTension(0)}>
+                      <button className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '12px', marginLeft: 'auto' }} onClick={() => setTension(0)}>
                         초기화
                       </button>
                     </div>
@@ -1713,7 +1723,7 @@ service cloud.firestore {
                       
                       <button 
                         className="btn btn-secondary" 
-                        style={{ marginTop: '12px', padding: '4px 8px', fontSize: '10px' }}
+                        style={{ marginTop: '12px', padding: '6px 10px', fontSize: '12px' }}
                         onClick={() => injectTextToJournal(`오라클 판정: ${oracleAnswer} ${complicationText ? ` / ${complicationText}` : ''}`)}
                       >
                         이 오라클 답변을 일지에 기록하기
@@ -1745,7 +1755,7 @@ service cloud.firestore {
                       </div>
                       <button 
                         className="btn btn-secondary" 
-                        style={{ padding: '2px 6px', fontSize: '9px', marginTop: '6px' }}
+                        style={{ padding: '4px 8px', fontSize: '12px', marginTop: '6px' }}
                         onClick={() => injectTextToJournal(`영감의 단어: ${sparkDescriptor} ${sparkSubject} ${sparkAction}`)}
                       >
                         이 단어 조합을 일지에 기록하기
@@ -1774,14 +1784,14 @@ service cloud.firestore {
                       <p className="gen-result-text" style={{ marginBottom: '10px', color: 'var(--text-bright)' }}>{generatedRoom.layout}</p>
                       
                       <div className="gen-result-title">방 내부 내용물</div>
-                      <p className="gen-result-text" style={{ marginBottom: '10px', color: '#e3e4e6' }}>{generatedRoom.content}</p>
+                      <p className="gen-result-text" style={{ marginBottom: '10px', color: 'var(--text-white)' }}>{generatedRoom.content}</p>
                       
                       <div className="gen-result-title">숨겨진 위협/이상현상</div>
                       <p className="gen-result-text" style={{ color: 'var(--color-red)' }}>{generatedRoom.danger}</p>
                       
                       <button 
                         className="btn btn-secondary" 
-                        style={{ width: '100%', marginTop: '14px', padding: '4px 8px', fontSize: '10px' }}
+                        style={{ width: '100%', marginTop: '14px', padding: '6px 10px', fontSize: '12px' }}
                         onClick={() => injectTextToJournal(`공간 발견: ${generatedRoom.layout} / 내부: ${generatedRoom.content} / 위협: ${generatedRoom.danger}`)}
                       >
                         이 공간 데이터를 일지에 기록하기
@@ -1800,21 +1810,21 @@ service cloud.firestore {
                   <div style={{ display: 'flex', gap: '6px', marginBottom: '12px' }}>
                     <button 
                       className={`btn btn-secondary ${encounterRegion === 'bastion' ? 'btn-primary' : ''}`}
-                      style={{ flex: 1, padding: '4px 6px', fontSize: '10px' }}
+                      style={{ flex: 1, padding: '6px 8px', fontSize: '12px' }}
                       onClick={() => setEncounterRegion('bastion')}
                     >
                       Bastion (바스티온) 지하
                     </button>
                     <button 
                       className={`btn btn-secondary ${encounterRegion === 'deep' ? 'btn-primary' : ''}`}
-                      style={{ flex: 1, padding: '4px 6px', fontSize: '10px' }}
+                      style={{ flex: 1, padding: '6px 8px', fontSize: '12px' }}
                       onClick={() => setEncounterRegion('deep')}
                     >
                       Deep Country (디프 컨트리) 숲속
                     </button>
                     <button 
                       className={`btn btn-secondary ${encounterRegion === 'underworld' ? 'btn-primary' : ''}`}
-                      style={{ flex: 1, padding: '4px 6px', fontSize: '10px' }}
+                      style={{ flex: 1, padding: '6px 8px', fontSize: '12px' }}
                       onClick={() => setEncounterRegion('underworld')}
                     >
                       Underworld (지하세계)의 밑바닥
@@ -1830,16 +1840,16 @@ service cloud.firestore {
                       <div className="char-name-row">
                         <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--color-red)' }}>{generatedEncounter.name}</span>
                       </div>
-                      <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginTop: '4px' }}>
+                      <div style={{ fontSize: '13px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginTop: '4px' }}>
                         능력 수치: {generatedEncounter.stats}
                       </div>
-                      <p style={{ fontSize: '12px', color: '#c4c8cd', marginTop: '8px', lineHeight: '1.5' }}>
+                      <p style={{ fontSize: '14px', color: 'var(--text-white)', marginTop: '8px', lineHeight: '1.5' }}>
                         {generatedEncounter.desc}
                       </p>
                       
                       <button 
                         className="btn btn-secondary" 
-                        style={{ width: '100%', marginTop: '14px', padding: '4px 8px', fontSize: '10px' }}
+                        style={{ width: '100%', marginTop: '14px', padding: '6px 10px', fontSize: '12px' }}
                         onClick={() => injectTextToJournal(`전투/대치 돌입: ${generatedEncounter.name} (${generatedEncounter.stats}) - ${generatedEncounter.desc}`)}
                       >
                         이 대치 조우를 일지에 기록하기
