@@ -1589,29 +1589,76 @@ service cloud.firestore {
                               const dmgMatch = item.name.match(/\((d[468102]+)/);
                               const damageDie = dmgMatch ? parseInt(dmgMatch[1].substring(1), 10) : null;
                               
+                              // Parse English and Korean/Details dynamically
+                              let isArcanumPrefix = false;
+                              let cleanName = item.name || "";
+                              if (cleanName.startsWith("아르카눔: ")) {
+                                isArcanumPrefix = true;
+                                cleanName = cleanName.substring(6);
+                              }
+                              
+                              const match = cleanName.match(/^([^(]+)\(([^)]+)\)$/);
+                              let englishName = cleanName.trim();
+                              let koreanPart = "";
+                              if (match) {
+                                englishName = match[1].trim();
+                                koreanPart = match[2].trim();
+                              }
+                              
                               return (
                                 <div key={idx} className={`inv-item ${item.bulky ? 'bulky' : ''} ${item.isArcanum ? 'arcanum' : ''}`} title={item.desc || ""}>
-                                  <span className="inv-item-name">
-                                    {item.isArcanum ? <Sparkles size={11} /> : <Shield size={11} />}
-                                    <span>{item.name}</span>
-                                    {damageDie && (
-                                      <button 
-                                        className="btn btn-secondary" 
-                                        style={{ padding: '4px 6px', fontSize: '11px', display: 'inline-flex', marginLeft: '6px', fontFamily: 'var(--font-mono)' }}
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          rollDice(damageDie, `${c.name}의 무기 피해 판정`);
-                                        }}
-                                      >
-                                        피해(d{damageDie})
-                                      </button>
+                                  <div style={{ display: 'flex', flex: '1', flexDirection: 'column', gap: '4px' }}>
+                                    <div className="inv-item-name" style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%', fontFamily: 'var(--font-heading)' }}>
+                                      {item.isArcanum ? <Sparkles size={11} style={{ color: 'var(--color-cyan)', flexShrink: 0 }} /> : <Shield size={11} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />}
+                                      <span style={{ fontWeight: '700', fontSize: '13.5px', color: item.isArcanum ? 'var(--color-cyan)' : 'var(--text-white)' }}>
+                                        {englishName}
+                                      </span>
+                                      {isArcanumPrefix && (
+                                        <span style={{ fontSize: '9px', backgroundColor: 'rgba(14, 165, 233, 0.1)', color: 'var(--color-cyan)', padding: '1px 5px', borderRadius: '3px', fontFamily: 'var(--font-mono)', fontWeight: '700' }}>
+                                          ARCANA
+                                        </span>
+                                      )}
+                                      {item.bulky && (
+                                        <span style={{ fontSize: '9px', backgroundColor: 'rgba(225, 29, 72, 0.1)', color: 'var(--color-red)', padding: '1px 5px', borderRadius: '3px', fontFamily: 'var(--font-mono)', fontWeight: '700', marginLeft: '4px' }}>
+                                          BULKY
+                                        </span>
+                                      )}
+                                      {damageDie && (
+                                        <button 
+                                          className="btn btn-secondary" 
+                                          style={{ padding: '2px 5px', fontSize: '10px', height: '18px', display: 'inline-flex', alignItems: 'center', marginLeft: '6px', fontFamily: 'var(--font-mono)', border: '1px solid var(--color-gold)', color: 'var(--color-gold)' }}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            rollDice(damageDie, `${c.name}의 무기 피해 판정`);
+                                          }}
+                                        >
+                                          피해(d{damageDie})
+                                        </button>
+                                      )}
+                                    </div>
+                                    
+                                    {/* Line 2: Korean translation & Arcanum effect details */}
+                                    {(koreanPart || item.desc) && (
+                                      <div style={{ paddingLeft: '17px', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                                        {koreanPart && (
+                                          <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '500', fontFamily: 'var(--font-body)' }}>
+                                            {koreanPart}
+                                          </div>
+                                        )}
+                                        {item.desc && (
+                                          <div style={{ fontSize: '11px', color: 'var(--text-white)', marginTop: '2px', lineHeight: '1.4', backgroundColor: 'rgba(15, 23, 42, 0.03)', padding: '4px 8px', borderRadius: '4px', borderLeft: '2px solid var(--color-cyan)', fontFamily: 'var(--font-body)' }}>
+                                            <strong>효과:</strong> {item.desc}
+                                          </div>
+                                        )}
+                                      </div>
                                     )}
-                                  </span>
+                                  </div>
                                   <button 
                                     className="inv-delete-btn" 
+                                    style={{ marginLeft: '12px', alignSelf: 'flex-start', marginTop: '2px', flexShrink: 0 }}
                                     onClick={() => removeItemFromInventory(c.id, idx)}
                                   >
-                                    <Trash2 size={11} />
+                                    <Trash2 size={12} />
                                   </button>
                                 </div>
                               );

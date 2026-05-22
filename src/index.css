@@ -522,13 +522,19 @@ pre, code, .stat-value {
 
 .inv-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   background-color: var(--bg-card-alt);
   border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: 4px;
-  padding: 6px 10px;
+  padding: 8px 12px;
   font-size: 14px;
+  transition: var(--transition-fast);
+}
+
+.inv-item:hover {
+  border-color: rgba(15, 23, 42, 0.15);
+  background-color: rgba(15, 23, 42, 0.01);
 }
 
 .inv-item-name {
