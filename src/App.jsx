@@ -1107,16 +1107,187 @@ export default function App() {
                 <h2 className="panel-title">어둠 속의 <span>작업소</span></h2>
                 <div className="panel-desc">솔로 RPG를 시작하기 전 파티원 장비를 롤링하거나 주사위를 던질 수 있는 허브입니다.</div>
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', position: 'relative' }}>
+                {/* Firebase Cloud Sync Mini Controls */}
+                {!firebaseSyncKey ? (
+                  <button 
+                    className="btn btn-primary" 
+                    style={{ background: 'var(--color-purple)', borderColor: 'var(--color-purple)', color: '#fff', display: 'flex', alignItems: 'center', gap: '6px' }}
+                    onClick={() => setShowFirebaseSettings(prev => !prev)}
+                  >
+                    <Cloud size={14} />
+                    <span>클라우드 연동</span>
+                  </button>
+                ) : (
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    <button 
+                      className="btn btn-secondary" 
+                      style={{ borderColor: 'var(--color-purple)', color: 'var(--color-purple)', display: 'flex', alignItems: 'center', gap: '6px' }}
+                      onClick={() => performFirebaseSync('upload')}
+                      disabled={isFirebaseSyncing}
+                      title="클라우드 저장 (원격 Firestore에 저장)"
+                    >
+                      {isFirebaseSyncing ? <RefreshCw size={12} className="spin-loader" /> : <Upload size={12} />}
+                      <span>클라우드 저장</span>
+                    </button>
+                    <button 
+                      className="btn btn-secondary" 
+                      style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                      onClick={() => performFirebaseSync('download')}
+                      disabled={isFirebaseSyncing}
+                      title="클라우드 복구 (원격 Firestore에서 불러오기)"
+                    >
+                      {isFirebaseSyncing ? <RefreshCw size={12} className="spin-loader" /> : <Download size={12} />}
+                      <span>클라우드 복구</span>
+                    </button>
+                    <button 
+                      className="btn btn-secondary" 
+                      style={{ padding: '6px 10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      onClick={() => setShowFirebaseSettings(prev => !prev)}
+                      title="연동 설정 변경"
+                    >
+                      <Settings size={14} style={{ color: 'var(--color-purple)' }} />
+                    </button>
+                  </div>
+                )}
+
+                {/* Vertical Separator */}
+                <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(15, 23, 42, 0.08)', margin: '0 4px' }} />
+
+                {/* Local Backup/Restore Controls */}
                 <button className="btn btn-secondary" onClick={exportCampaignData}>
                   <Download size={14} />
                   <span>백업 파일 추출</span>
                 </button>
-                <label className="btn btn-secondary" style={{ cursor: 'pointer' }}>
+                <label className="btn btn-secondary" style={{ cursor: 'pointer', margin: 0 }}>
                   <Upload size={14} />
                   <span>복구 파일 불러오기</span>
                   <input type="file" accept=".json" onChange={importCampaignData} style={{ display: 'none' }} />
                 </label>
+
+                {/* Floating Dropdown settings card */}
+                {showFirebaseSettings && (
+                  <div 
+                    className="card" 
+                    style={{ 
+                      position: 'absolute', 
+                      top: '100%', 
+                      right: 0, 
+                      marginTop: '8px', 
+                      zIndex: 1000, 
+                      width: '320px', 
+                      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.15)',
+                      border: '1px solid rgba(124, 58, 237, 0.2)',
+                      background: '#1e293b', 
+                      padding: '16px',
+                      textAlign: 'left'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                      <h4 style={{ margin: 0, fontSize: '13px', color: 'var(--color-purple)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Cloud size={14} />
+                        <span>파이어베이스 연동 설정</span>
+                      </h4>
+                      {firebaseSyncKey && (
+                        <button 
+                          style={{ background: 'none', border: 'none', color: 'var(--color-red)', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 'bold' }}
+                          onClick={() => {
+                            handleClearFirebaseSettings();
+                            setShowFirebaseSettings(false);
+                          }}
+                        >
+                          <LogOut size={12} />
+                          <span>연동 해제</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="cloud-guide-box" style={{ borderLeft: '3px solid var(--color-purple)', padding: '8px', background: 'rgba(124, 58, 237, 0.05)', borderRadius: '4px', marginBottom: '12px' }}>
+                      <p style={{ fontSize: '11px', margin: 0, lineHeight: '1.5', color: '#fff' }}>
+                        🚀 <strong>skogsduvasbookshop</strong> 프로젝트 기본 내장
+                      </p>
+                      <p style={{ fontSize: '10px', margin: '4px 0 0 0', lineHeight: '1.4', color: 'var(--text-dark)' }}>
+                        기기간 동일한 비밀 캠페인 코드를 입력하여 탐험 기록을 동기화하세요.
+                      </p>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <label style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: '#fff', fontWeight: '700' }}>
+                          SYNC KEY (비밀 캠페인 코드)
+                        </label>
+                        <input 
+                          type="text" 
+                          className="text-input" 
+                          placeholder="예: 251500"
+                          defaultValue={firebaseSyncKey}
+                          id="firebase-key-input"
+                          style={{ padding: '6px 10px', fontSize: '12px' }}
+                        />
+                      </div>
+
+                      <details style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '8px' }}>
+                        <summary style={{ fontSize: '11px', color: 'var(--color-purple)', cursor: 'pointer', userSelect: 'none', fontWeight: 'bold' }}>
+                          고급 설정 (커스텀 Firebase 및 보안 규칙)
+                        </summary>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px', padding: '6px', background: 'rgba(0, 0, 0, 0.2)', borderRadius: '4px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <label style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', color: '#fff', fontWeight: '700' }}>
+                              FIREBASE WEB APP CONFIG JSON (선택 사항)
+                            </label>
+                            <textarea 
+                              className="textarea-config" 
+                              placeholder={`{\n  "apiKey": "AIzaSy...",\n  "projectId": "your-app",\n  ...\n}`}
+                              defaultValue={firebaseConfigRaw}
+                              id="firebase-config-input"
+                              style={{ minHeight: '70px', fontSize: '10px', fontFamily: 'var(--font-mono)', padding: '6px' }}
+                            />
+                          </div>
+
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <label style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', color: '#fff', fontWeight: '700' }}>
+                              권장 FIRESTORE 보안 규칙
+                            </label>
+                            <div className="code-block-rules" style={{ margin: 0, padding: '6px', fontSize: '9px', maxHeight: '100px', overflowY: 'auto' }}>
+{`rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /saves/{syncId} {
+      allow read, write: if true;
+    }
+    match /vampire_saves/{userId} {
+      allow read, write: if true;
+    }
+  }
+}`}
+                            </div>
+                          </div>
+                        </div>
+                      </details>
+
+                      <div style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
+                        <button 
+                          className="btn btn-primary" 
+                          style={{ flex: 1, background: 'var(--color-purple)', borderColor: 'var(--color-purple)', color: '#fff', fontSize: '12px', padding: '6px 12px' }}
+                          onClick={() => {
+                            const configVal = document.getElementById('firebase-config-input')?.value || '';
+                            const keyVal = document.getElementById('firebase-key-input')?.value || '';
+                            handleSaveFirebaseSettings(configVal, keyVal);
+                          }}
+                        >
+                          클라우드 연동 활성화
+                        </button>
+                        <button 
+                          className="btn btn-secondary" 
+                          style={{ flex: 0.4, fontSize: '12px', padding: '6px 12px' }}
+                          onClick={() => setShowFirebaseSettings(false)}
+                        >
+                          닫기
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -1192,191 +1363,6 @@ export default function App() {
 
               {/* Right column: Active party list summary & dice history */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                {/* Firebase Campaign Sync Widget */}
-                <div className="card cloud-sync-card firebase-sync-card">
-                  {(!firebaseSyncKey || showFirebaseSettings) ? (
-                    <div>
-                      <h3 className="card-title" style={{ color: 'var(--color-purple)' }}>
-                        <Cloud size={16} style={{ color: 'var(--color-purple)' }} />
-                        <span>파이어베이스 클라우드 설정</span>
-                      </h3>
-
-                      <div className="cloud-guide-box" style={{ borderLeft: '3px solid var(--color-purple)', padding: '12px', background: 'rgba(124, 58, 237, 0.05)', borderRadius: '4px', marginBottom: '14px' }}>
-                        <p style={{ fontSize: '13px', margin: 0, lineHeight: '1.6', color: 'var(--text-white)' }}>
-                          🚀 <strong>skogsduvasbookshop</strong> 프로젝트가 앱에 기본 내장되어 있습니다!
-                        </p>
-                        <p style={{ fontSize: '12px', margin: '6px 0 0 0', lineHeight: '1.5', color: 'var(--text-muted)' }}>
-                          비밀 캠페인 코드(동기화 키)만 입력하시면 즉시 안전한 실시간 클라우드 동기화가 활성화됩니다.
-                        </p>
-                      </div>
-
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                          <label style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-white)', fontWeight: '700' }}>
-                            SYNC KEY (비밀 캠페인 코드)
-                          </label>
-                          <input 
-                            type="text" 
-                            className="text-input" 
-                            placeholder="예: my-secret-campaign-2026"
-                            defaultValue={firebaseSyncKey}
-                            id="firebase-key-input"
-                          />
-                          <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                            기기 간에 이 코드가 완전히 일치해야 동일한 데이터를 연동할 수 있습니다.
-                          </span>
-                        </div>
-
-                        <details style={{ marginTop: '4px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '10px' }}>
-                          <summary style={{ fontSize: '12px', color: 'var(--color-purple)', cursor: 'pointer', userSelect: 'none', fontWeight: 'bold' }}>
-                            고급 설정 (커스텀 Firebase 프로젝트 연동 및 보안 규칙)
-                          </summary>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '10px', padding: '10px', background: 'rgba(0, 0, 0, 0.15)', borderRadius: '4px' }}>
-                            <div style={{ fontSize: '12px', lineHeight: '1.5', color: 'var(--text-muted)' }}>
-                              <p style={{ margin: '0 0 8px 0' }}>
-                                커스텀 Firebase 프로젝트를 연동하시려면 아래에 SDK 설정 객체(JSON)를 입력하세요.
-                              </p>
-                            </div>
-                            
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                              <label style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-white)', fontWeight: '700' }}>
-                                FIREBASE WEB APP CONFIG JSON (선택 사항)
-                              </label>
-                              <textarea 
-                                className="textarea-config" 
-                                placeholder={`{\n  "apiKey": "AIzaSy...",\n  "authDomain": "your-app.firebaseapp.com",\n  "projectId": "your-app",\n  ...\n}`}
-                                defaultValue={firebaseConfigRaw}
-                                id="firebase-config-input"
-                                style={{ minHeight: '100px', fontSize: '11px', fontFamily: 'var(--font-mono)' }}
-                              />
-                            </div>
-
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                              <label style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-white)', fontWeight: '700' }}>
-                                권장 FIRESTORE 보안 규칙 (Firestore Security Rules)
-                              </label>
-                              <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px' }}>
-                                안전한 동기화를 위해 Firebase Console의 Firestore Rules 탭에 아래 규칙을 적용해 주세요:
-                              </div>
-                              <div className="code-block-rules" style={{ margin: 0, padding: '8px', fontSize: '11px', maxHeight: '150px', overflowY: 'auto' }}>
-{`rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // 기존 saves 컬렉션 허용 (로그인 불필요)
-    match /saves/{syncId} {
-      allow read, write: if true;
-    }
-    
-    // 🩸 천년 동안 살아온 흡혈귀 세이브 허용 (로그인 상태)
-    match /vampire_saves/{userId} {
-      allow read, write: if true;
-    }
-  }
-}`}
-                              </div>
-                            </div>
-                          </div>
-                        </details>
-
-                        <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                          <button 
-                            className="btn btn-primary" 
-                            style={{ flex: 1, background: 'var(--color-purple)', borderColor: 'var(--color-purple)', color: '#fff' }}
-                            onClick={() => {
-                              const configVal = document.getElementById('firebase-config-input')?.value || '';
-                              const keyVal = document.getElementById('firebase-key-input')?.value || '';
-                              handleSaveFirebaseSettings(configVal, keyVal);
-                            }}
-                          >
-                            클라우드 연동 활성화
-                          </button>
-                          {firebaseSyncKey && (
-                            <button 
-                              className="btn btn-secondary" 
-                              style={{ flex: 0.5 }}
-                              onClick={() => setShowFirebaseSettings(false)}
-                            >
-                              취소
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div>
-                      <h3 className="card-title">
-                        <Cloud size={16} style={{ color: 'var(--color-purple)' }} />
-                        <span>파이어베이스 클라우드 동기화</span>
-                      </h3>
-                      <div>
-                        <p style={{ fontSize: '13px', lineHeight: '1.6', color: 'var(--text-muted)', marginBottom: '16px' }}>
-                          파이어베이스 파이어스토어와 성공적으로 연동되었습니다! 언제든지 탐험 상황을 저장하거나 복구하세요.
-                        </p>
-
-                        <div className="cloud-info-row">
-                          <span className="cloud-info-label">연동 프로젝트</span>
-                          <span className="cloud-info-value" style={{ color: 'var(--color-purple)', fontWeight: 'bold' }}>
-                            {firebaseProjectName || 'skogsduvasbookshop'}
-                          </span>
-                        </div>
-                        <div className="cloud-info-row">
-                          <span className="cloud-info-label">비밀 캠페인 코드</span>
-                          <span className="cloud-info-value" style={{ fontFamily: 'var(--font-mono)', fontWeight: 'bold' }}>{firebaseSyncKey}</span>
-                        </div>
-                        <div className="cloud-info-row">
-                          <span className="cloud-info-label">연동 상태</span>
-                          <span className="cloud-status-badge firebase-connected">
-                            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--color-purple)', display: 'inline-block', marginRight: '6px' }}></span>
-                            연동 완료
-                          </span>
-                        </div>
-                        <div className="cloud-info-row">
-                          <span className="cloud-info-label">최근 동기화</span>
-                          <span className="cloud-info-value">{lastFirebaseSync || '기록 없음'}</span>
-                        </div>
-
-                        <div className="cloud-btn-group" style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-                          <button 
-                            className="btn btn-primary" 
-                            style={{ flex: 1, background: 'var(--color-purple)', borderColor: 'var(--color-purple)', color: '#fff', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}
-                            onClick={() => performFirebaseSync('upload')}
-                            disabled={isFirebaseSyncing}
-                          >
-                            {isFirebaseSyncing ? <RefreshCw size={12} className="spin-loader" /> : <Upload size={12} />}
-                            <span>클라우드 저장</span>
-                          </button>
-                          <button 
-                            className="btn btn-secondary" 
-                            style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}
-                            onClick={() => performFirebaseSync('download')}
-                            disabled={isFirebaseSyncing}
-                          >
-                            {isFirebaseSyncing ? <RefreshCw size={12} className="spin-loader" /> : <Download size={12} />}
-                            <span>클라우드 복구</span>
-                          </button>
-                        </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', borderTop: '1px solid rgba(15, 23, 42, 0.08)', paddingTop: '12px' }}>
-                          <button 
-                            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', color: 'var(--text-dark)', cursor: 'pointer', fontSize: '11px' }}
-                            onClick={() => setShowFirebaseSettings(true)}
-                          >
-                            <Settings size={12} />
-                            <span>설정 변경</span>
-                          </button>
-                          <button 
-                            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'none', border: 'none', color: 'var(--color-red)', cursor: 'pointer', fontSize: '11px', fontWeight: '700' }}
-                            onClick={handleClearFirebaseSettings}
-                          >
-                            <LogOut size={12} />
-                            <span>연동 해제</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
                 {/* Active Party Tracker widget */}
                 <div className="card">
                   <h3 className="card-title">
