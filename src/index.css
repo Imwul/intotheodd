@@ -28,7 +28,7 @@
   --color-purple: #7c3aed;      /* Violet purple */
 
   /* Fonts (Pretendard loaded for Korean text) */
-  --font-serif: 'EB Garamond', Georgia, serif;
+  --font-serif: 'EB Garamond', Georgia, 'Pretendard', sans-serif;
   --font-heading: 'Space Grotesk', 'Pretendard', sans-serif;
   --font-body: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
