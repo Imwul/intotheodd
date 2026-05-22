@@ -1556,7 +1556,22 @@ service cloud.firestore {
                         {/* Special Trait or Notes */}
                         <div style={{ marginBottom: '14px', padding: '10px 14px', backgroundColor: 'var(--bg-card-alt)', borderRadius: '6px', border: '1px solid rgba(15, 23, 42, 0.08)' }}>
                           <span style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', color: 'var(--color-gold)', fontFamily: 'var(--font-mono)', letterSpacing: '0.05em' }}>고유 특성/결손 효과</span>
-                          <div style={{ fontSize: '14px', marginTop: '4px', color: 'var(--text-white)', fontWeight: '500' }}>{c.trait}</div>
+                          {(() => {
+                            const match = c.trait ? c.trait.match(/^([^(]+)\(([^)]+)\)$/) : null;
+                            if (match) {
+                              return (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginTop: '4px' }}>
+                                  <div style={{ fontSize: '14px', color: 'var(--text-white)', fontWeight: '600', lineHeight: '1.3' }}>{match[1].trim()}</div>
+                                  <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '500', lineHeight: '1.3' }}>{match[2].trim()}</div>
+                                </div>
+                              );
+                            }
+                            return (
+                              <div style={{ fontSize: '14px', marginTop: '4px', color: 'var(--text-white)', fontWeight: '500' }}>
+                                {c.trait === 'None' ? '없음' : c.trait}
+                              </div>
+                            );
+                          })()}
                         </div>
 
                         {/* Interactive Inventory */}

@@ -432,6 +432,10 @@ pre, code, .stat-value {
   text-align: center;
   cursor: pointer;
   transition: var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 98px;
 }
 
 .stat-box:hover {
@@ -449,6 +453,11 @@ pre, code, .stat-value {
   color: var(--text-muted);
   font-family: var(--font-mono);
   letter-spacing: 0.05em;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
 }
 
 .stat-value {
