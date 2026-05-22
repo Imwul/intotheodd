@@ -52,6 +52,17 @@ const localStorage = (() => {
   }
 })();
 
+// Default Firebase Client SDK configuration for skogsduvasbookshop
+const DEFAULT_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCBiEh_2YmbU9W_isONi2FugkTzDIYJ0mE",
+  authDomain: "skogsduvasbookshop.firebaseapp.com",
+  databaseURL: "https://skogsduvasbookshop-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "skogsduvasbookshop",
+  storageBucket: "skogsduvasbookshop.firebasestorage.app",
+  messagingSenderId: "1051912666392",
+  appId: "1:1051912666392:web:effb955c211c174b26326d"
+};
+
 /* ==========================================================
    DATA STRUCTURES (INTO THE ODD CORE)
    ========================================== */
@@ -370,9 +381,16 @@ export default function App() {
 
   // Dynamic Firebase Instance Fetcher
   const getFirestoreDb = () => {
-    if (!firebaseConfigRaw) return null;
+    let config = DEFAULT_FIREBASE_CONFIG;
+    if (firebaseConfigRaw) {
+      try {
+        config = JSON.parse(firebaseConfigRaw);
+      } catch (err) {
+        console.error("Firebase config parse error, falling back to default:", err);
+      }
+    }
+
     try {
-      const config = JSON.parse(firebaseConfigRaw);
       const firebaseApps = getApps();
       let app;
       if (firebaseApps.length === 0) {
@@ -406,9 +424,6 @@ export default function App() {
         showToast("Firebase SDK 설정이 올바른 JSON 형식이 아닙니다.", "danger");
         return;
       }
-    } else {
-      showToast("Firebase SDK 설정을 입력해 주세요.", "danger");
-      return;
     }
 
     setFirebaseConfigRaw(configJson.trim());
@@ -434,8 +449,8 @@ export default function App() {
   };
 
   const performFirebaseSync = async (mode = 'sync') => {
-    if (!firebaseConfigRaw || !firebaseSyncKey) {
-      showToast("Firebase 설정을 먼저 완료해 주세요.", "danger");
+    if (!firebaseSyncKey) {
+      showToast("비밀 캠페인 코드를 입력해 주세요.", "danger");
       setShowFirebaseSettings(true);
       return;
     }
@@ -1179,56 +1194,23 @@ export default function App() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 {/* Firebase Campaign Sync Widget */}
                 <div className="card cloud-sync-card firebase-sync-card">
-                  {(!firebaseConfigRaw || !firebaseSyncKey || showFirebaseSettings) ? (
+                  {(!firebaseSyncKey || showFirebaseSettings) ? (
                     <div>
                       <h3 className="card-title" style={{ color: 'var(--color-purple)' }}>
                         <Cloud size={16} style={{ color: 'var(--color-purple)' }} />
                         <span>파이어베이스 클라우드 설정</span>
                       </h3>
 
-                      <div className="cloud-guide-box" style={{ borderLeft: '3px solid var(--color-purple)' }}>
-                        <div className="cloud-guide-title">
-                          <Settings size={13} style={{ color: 'var(--color-purple)' }} />
-                          <span style={{ color: 'var(--color-purple)', fontWeight: 'bold' }}>캠페인 클라우드 연동 가이드</span>
-                        </div>
-                        <ul className="cloud-guide-list" style={{ marginTop: '8px' }}>
-                          <li>
-                            1. <a href="https://console.firebase.google.com/u/1/project/skogsduvasbookshop/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-purple)', textDecoration: 'underline', fontWeight: 'bold' }}>Firebase Console</a>에서 <code>skogsduvasbookshop</code> 프로젝트를 엽니다.
-                          </li>
-                          <li>
-                            2. 현재 설정하신 보안 규칙의 **기존 `saves` 컬렉션 허용(`saves/{"{syncId}"}`)** 규칙을 활용합니다. 별도의 보안 규칙 변경 없이 즉시 연동하여 사용하실 수 있습니다!
-                            <div className="code-block-rules">
-{`rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // 기존 saves 컬렉션 허용
-    match /saves/{syncId} {
-      allow read, write: if true;
-    }
-  }
-}`}
-                            </div>
-                          </li>
-                          <li>
-                            3. <strong>프로젝트 설정 &gt; 웹 앱(Web App)</strong>을 추가하고 생성된 <strong>SDK 설정 객체(JSON)</strong> 전체를 아래에 붙여넣습니다.
-                          </li>
-                        </ul>
+                      <div className="cloud-guide-box" style={{ borderLeft: '3px solid var(--color-purple)', padding: '12px', background: 'rgba(124, 58, 237, 0.05)', borderRadius: '4px', marginBottom: '14px' }}>
+                        <p style={{ fontSize: '13px', margin: 0, lineHeight: '1.6', color: 'var(--text-white)' }}>
+                          🚀 <strong>skogsduvasbookshop</strong> 프로젝트가 앱에 기본 내장되어 있습니다!
+                        </p>
+                        <p style={{ fontSize: '12px', margin: '6px 0 0 0', lineHeight: '1.5', color: 'var(--text-muted)' }}>
+                          비밀 캠페인 코드(동기화 키)만 입력하시면 즉시 안전한 실시간 클라우드 동기화가 활성화됩니다.
+                        </p>
                       </div>
 
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '14px' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                          <label style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-white)', fontWeight: '700' }}>
-                            FIREBASE WEB APP CONFIG JSON
-                          </label>
-                          <textarea 
-                            className="textarea-config" 
-                            placeholder={`{\n  "apiKey": "AIzaSy...",\n  "authDomain": "skogsduvasbookshop.firebaseapp.com",\n  "projectId": "skogsduvasbookshop",\n  ...\n}`}
-                            defaultValue={firebaseConfigRaw}
-                            id="firebase-config-input"
-                            style={{ minHeight: '120px' }}
-                          />
-                        </div>
-
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                           <label style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-white)', fontWeight: '700' }}>
                             SYNC KEY (비밀 캠페인 코드)
@@ -1245,6 +1227,57 @@ service cloud.firestore {
                           </span>
                         </div>
 
+                        <details style={{ marginTop: '4px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '10px' }}>
+                          <summary style={{ fontSize: '12px', color: 'var(--color-purple)', cursor: 'pointer', userSelect: 'none', fontWeight: 'bold' }}>
+                            고급 설정 (커스텀 Firebase 프로젝트 연동 및 보안 규칙)
+                          </summary>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '10px', padding: '10px', background: 'rgba(0, 0, 0, 0.15)', borderRadius: '4px' }}>
+                            <div style={{ fontSize: '12px', lineHeight: '1.5', color: 'var(--text-muted)' }}>
+                              <p style={{ margin: '0 0 8px 0' }}>
+                                커스텀 Firebase 프로젝트를 연동하시려면 아래에 SDK 설정 객체(JSON)를 입력하세요.
+                              </p>
+                            </div>
+                            
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                              <label style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-white)', fontWeight: '700' }}>
+                                FIREBASE WEB APP CONFIG JSON (선택 사항)
+                              </label>
+                              <textarea 
+                                className="textarea-config" 
+                                placeholder={`{\n  "apiKey": "AIzaSy...",\n  "authDomain": "your-app.firebaseapp.com",\n  "projectId": "your-app",\n  ...\n}`}
+                                defaultValue={firebaseConfigRaw}
+                                id="firebase-config-input"
+                                style={{ minHeight: '100px', fontSize: '11px', fontFamily: 'var(--font-mono)' }}
+                              />
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                              <label style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-white)', fontWeight: '700' }}>
+                                권장 FIRESTORE 보안 규칙 (Firestore Security Rules)
+                              </label>
+                              <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px' }}>
+                                안전한 동기화를 위해 Firebase Console의 Firestore Rules 탭에 아래 규칙을 적용해 주세요:
+                              </div>
+                              <div className="code-block-rules" style={{ margin: 0, padding: '8px', fontSize: '11px', maxHeight: '150px', overflowY: 'auto' }}>
+{`rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 기존 saves 컬렉션 허용 (로그인 불필요)
+    match /saves/{syncId} {
+      allow read, write: if true;
+    }
+    
+    // 🩸 천년 동안 살아온 흡혈귀 세이브 허용 (로그인 상태)
+    match /vampire_saves/{userId} {
+      allow read, write: if true;
+    }
+  }
+}`}
+                              </div>
+                            </div>
+                          </div>
+                        </details>
+
                         <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                           <button 
                             className="btn btn-primary" 
@@ -1255,9 +1288,9 @@ service cloud.firestore {
                               handleSaveFirebaseSettings(configVal, keyVal);
                             }}
                           >
-                            연동 설정 저장
+                            클라우드 연동 활성화
                           </button>
-                          {firebaseConfigRaw && firebaseSyncKey && (
+                          {firebaseSyncKey && (
                             <button 
                               className="btn btn-secondary" 
                               style={{ flex: 0.5 }}
