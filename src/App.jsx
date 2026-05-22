@@ -1196,7 +1196,7 @@ export default function App() {
                             1. <a href="https://console.firebase.google.com/u/1/project/skogsduvasbookshop/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-purple)', textDecoration: 'underline', fontWeight: 'bold' }}>Firebase Console</a>에서 <code>skogsduvasbookshop</code> 프로젝트를 엽니다.
                           </li>
                           <li>
-                            2. 현재 설정하신 보안 규칙의 **기존 `saves` 컬렉션 허용(`saves/{syncId}`)** 규칙을 활용합니다. 별도의 보안 규칙 변경 없이 즉시 연동하여 사용하실 수 있습니다!
+                            2. 현재 설정하신 보안 규칙의 **기존 `saves` 컬렉션 허용(`saves/{"{syncId}"}`)** 규칙을 활용합니다. 별도의 보안 규칙 변경 없이 즉시 연동하여 사용하실 수 있습니다!
                             <div className="code-block-rules">
 {`rules_version = '2';
 service cloud.firestore {
